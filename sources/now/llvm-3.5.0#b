@@ -1,0 +1,30 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+adep="libffi Python"
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN}.src $rD/$PN
+}
+
+_conf() {
+sed -e "s:/docs/llvm:/share/doc/llvm-3.5.0:" \
+ -i Makefile.config.in ||fail sed-docs
+
+CC=gcc CXX=g++ \
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --enable-libffi \
+  --enable-optimized \
+  --enable-shared \
+  --disable-assertions
+}
+
+_postin() {
+for file in $D/usr/lib/lib{clang,LLVM,LTO}*.a ; do
+  test -f $file && chmod -v 644 $file
+done
+}

@@ -1,0 +1,17 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+dep="zlib readline glib"
+adep="gettext"
+
+_patch () {
+patch -Np1 -i $sD/${PN}-crash.patch ||fail crash
+patch -Np1 -i $sD/${PN}-g-handling.patch ||fail g-hanling
+patch -Np1 -i $sD/${PN}-missing-headers.patch ||fail misshead
+patch -Np0 -i $sD/${PN}-respect-HOME.patch ||fail respecthome
+}
+
+_conf() {
+./configure --prefix=/usr --disable-nls
+}

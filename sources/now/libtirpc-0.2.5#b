@@ -1,0 +1,20 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep=""
+adep=""
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --disable-static \
+  --disable-gssapi
+}
+
+_postin() {
+mkdir -pv $D/lib
+mv -v $D/usr/lib/libtirpc.so.* $D/lib ||fail mv-lib
+ln -sfv ../../lib/libtirpc.so.1.0.10 $D/usr/lib/libtirpc.so
+}

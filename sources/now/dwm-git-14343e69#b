@@ -1,0 +1,22 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _conf _patch _check _makepkg 
+
+_patch() {
+patch -Np1 -i ${sD}/dwm-6.1-pertag.diff ||fail pertag
+#patch -Np1 -i ${sD}/dwm-6.1-gaplessgrid.diff ||fail gaplessgrid
+patch -Np1 -i ${sD}/dwm-6.0-gaps.diff ||fail gaps
+patch -Np1 -i ${sD}/dwm-6.1-moveresize.diff ||fail moveresize
+patch -Np0 -i ${sD}/dwm-6.1-moveresize2.diff ||fail moveresize2
+patch -Np1 -i ${sD}/dwm-6.1-maximize_vert_horz.diff ||fail maximize_vert_horz
+cp -v ${sD}/${PN}_config.def.h config.def.h
+ln -sv config.def.h config.h
+sed -i '/showbar/s/True/False/' config.h ||fail
+sed -i -e 's/-Os//' -e '/^CFLAGS/s/=/+=/' \
+ -e 's@/usr/local@/usr@' config.mk ||fail sed
+}
+
+_postin() {
+mv $D/usr/bin/dwm{,-dark}
+ln -sv dwm-dark $D/usr/bin/dwm
+}

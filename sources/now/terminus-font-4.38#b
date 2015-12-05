@@ -1,0 +1,28 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+dep="gzip perl awk"
+adep="bdftopcf"
+
+_patch() {
+patch -Np1 -i alt/ge2.diff ||fail ge2
+#patch -Np1 -i alt/gq2.diff ||fail gq2
+patch -Np1 -i alt/ll2.diff ||fail ll2
+patch -Np1 -i alt/hi2.diff ||fail hi2
+}
+
+_conf() {
+chmod +x ./configure
+./configure \
+  --prefix=/usr \
+  --x11dir=/usr/share/fonts/X11/terminus
+}
+
+_build() {
+make pcf ||fail make
+}
+
+_destin() {
+make DESTDIR=$D install-pcf ||fail destinst
+}

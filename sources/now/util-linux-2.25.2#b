@@ -1,0 +1,17 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure ADJTIME_PATH=/var/lib/hwclock/adjtime \
+  --docdir=/usr/share/doc/$PN \
+  --disable-{chfn-chsh,{,no}login,su,setpriv,runuser} \
+  --disable-{nls,pylibmount} \
+  --enable-write \
+  --without-{python,systemd,systemdsystemunitdir}
+}
+
+_postin() {
+mkdir -pv $D/var/lib/hwclock
+touch $D/var/lib/hwclock/adjtime
+}

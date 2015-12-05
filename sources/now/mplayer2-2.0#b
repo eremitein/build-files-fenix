@@ -1,0 +1,20 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure --prefix=/usr \
+	--mandir=/usr/man \
+	--codecsdir=/usr/share/codecs \
+	--confdir=/etc/mplayer2 \
+	--enable-menu \
+	--language-man="en ru" \
+	--language-doc="en ru"
+}
+
+_postin() {
+cd $D
+for f in `find . -type f -iname mplayer\*`; do
+  mv "$f" ${f/mplayer/mplayer2}
+done
+}

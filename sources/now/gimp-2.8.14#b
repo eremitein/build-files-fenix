@@ -1,0 +1,34 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="babl gegl gtk2+"
+
+_patch() {
+patch -Np1 -i $sD/${PN}-device_info-1.patch ||fail devinfo
+#patch -Np1 -i $sD/${PN}-cve-2013-1913.patch ||fail cve
+sed -i '/$(helpbrowser)/d' plug-ins/Makefile.in ||fail help
+#patch -Np0 -i $sD/gimp-2.7.4-no-deprecation.patch ||fail 274
+#sed -i 's/== "xquartz"/= "xquartz"/' configure.ac ||fail quartz
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --disable-nls \
+  --disable-dependency-tracking \
+  --disable-glibtest \
+  --disable-gtktest \
+  --disable-python \
+  --without-gvfs \
+  --disable-static \
+  --without-webkit \
+  --without-xvfb-run \
+  --without-dbus \
+  --with-xmc
+}
+
+_postin() {
+rm -r $D/usr/share/{gtk-doc,locale}
+}

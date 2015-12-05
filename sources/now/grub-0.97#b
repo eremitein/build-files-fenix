@@ -1,0 +1,112 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+_unpack() {
+tar xf $sD/${PN}.tar.* -C $rD ||fail unpack
+tar xf $sD/${PN}_gentoopatch.tar.* -C $rD ||fail unpack-patches
+}
+
+_patch() {
+for f in ../${PN}_gentoopatch/*.patch
+ do patch -p1 -i $f ||fail "$f"
+done
+rm -rf ../${PN}_gentoopatch
+}
+
+_conf() {
+CFLAGS="-s -g0 -Os -march=i486 -mtune=i486" \
+./configure \
+  --prefix=/usr \
+  --bindir=/bin \
+  --sbindir=/sbin \
+  --sysconfdir=/etc \
+  --disable-grub-emu-usb \
+  --disable-efiemu \
+  --disable-werror \
+  --disable-auto-linux-mem-opt
+}
+
+_postin() {
+mkdir -pv $D/boot/grub
+cat > $D/boot/grub/menu.lst.sample << "EOF"
+# Begin /boot/grub/menu.lst
+default saved
+timeout 5
+#fallback 1 2 3 4
+#color light-green/brown blink-red/blue
+#color light-gray/blue blink-black/light-gray
+color green/black blink-light-green/black
+#color light-cyan/black blink-light-cyan/black
+#splashimage=(hd0,0)/boot/grub/splash.xpm.gz
+
+# DEVICE NAME CONVERSIONS
+#
+#  Linux           Grub
+# -------------------------
+#  /dev/fd0        (fd0)
+#  /dev/sda        (hd0)
+#  /dev/sdb2       (hd1,1)
+#  /dev/sda3       (hd0,2)
+#
+#  FRAMEBUFFER RESOLUTION SETTINGS
+#     +-------------------------------------------------+
+#          | 640x480    800x600    1024x768   1280x1024
+#      ----+--------------------------------------------
+#      256 | 0x301=769  0x303=771  0x305=773   0x307=775
+#      32K | 0x310=784  0x313=787  0x316=790   0x319=793
+#      64K | 0x311=785  0x314=788  0x317=791   0x31A=794
+#      16M | 0x312=786  0x315=789  0x318=792   0x31B=795
+#     +-------------------------------------------------+
+
+#  title  LFS [/boot/vmlinuz]
+#root (hd0,2)
+#kernel /boot/vmlinuz root=/dev/sda3 ro quiet raid=noautodetect noinitrd udev.children-max=1 devtmpfs.mount=1 panic=10 ramdisk_size=55304 resume=/dev/sda1 elevator=deadline default_utf8=0
+#initrd /boot/initrd.gz
+#savedefault
+
+#  title  BLFS [/boot/vmlinuz]
+#root (hd0,3)
+#kernel /boot/vmlinuz root=/dev/sda4 ro radeon.tv=0 radeon.dynclks=0 radeon.lockup_timeout=2000 radeon.fastfb=1 psmouse.proto=imps video=vesafb:vremap:16,ywrap vt.color=0x70 vt.cur_default=0x3 video=VGA-1:d video=LVDS-1:640x480R-16@60 video=HDMI-A-1:d
+#initrd /boot/initrd.gz
+
+#   title Sabayon Linux (kernel-genkernel-x86-2.6.31-sabayon) (safe mode)
+#root (hd0,8)
+#kernel /boot/kernel-genkernel-x86-2.6.31-sabayon root=/dev/ram0 ramdisk=8192 real_root=/dev/sda9 dolvm init=/linuxrc console=tty1 resume=swap:/dev/sda1 real_resume=/dev/sda1 nox gentoo=nox acpi=off ide=nodma vga=normal
+#initrd /boot/initramfs-genkernel-x86-2.6.31-sabayon
+
+#title  GeeXBoX mMediaLive\n Start GeeXboX ...
+#kernel /GEEXBOX/boot/vmlinuz root=/dev/ram0 rw rdinit=linuxrc boot=/dev/sda3 lang=en remote=atiusb receiver=atiusb keymap=qwerty splash=silent vga=789 video=vesafb:ywrap,mtrr quiet
+#initrd /GEEXBOX/boot/initrd.gz
+
+#  title INSTALL [Slackware 13]
+#root (hd0,2)
+#kernel /boot/vmlinuz-huge-ins load_ramdisk=1 prompt_ramdisk=0 rw
+#initrd /boot/initrd_ins.img
+
+#  title TinyCoreLinux [sda3]
+#root (hd0,2)
+#kernel /tinycore3/boot/bzImage
+#initrd /tinycore3/boot/tinycore.gz quiet
+
+#  title Austrumi 2.1.6 [sda3]
+#root (hd0,2)
+#kernel /austrumi/bzImage
+#initrd /austrumi/initrd.gz dousb
+
+#title CentOS [2.6.18-194.el5]
+#root (hd0,7)
+#kernel /boot/vmlinuz-2.6.18-194.el5 ro root=/dev/sda8 rhgb quiet
+#initrd /boot/initrd-2.6.18-194.el5.img
+
+#title           Ubuntu 9.04, kernel 2.6.28-11-generic (recovery mode)
+#uuid            2e1e145d-0861-4fb3-818f-0f44013b5e3c
+#kernel          /boot/vmlinuz-2.6.28-11-generic root=UUID=2e1e145d-0861-4fb3-818f-0f44013b5e3c ro single
+#initrd          /boot/initrd.img-2.6.28-11-generic #savedefault
+
+#hiddenmenu
+#  title Windows XP SP3 [nowayOS]
+#rootnoverify   (hd0,0)
+#chainloader    +1
+EOF
+}

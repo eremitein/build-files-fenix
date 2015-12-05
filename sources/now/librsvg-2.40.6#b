@@ -1,0 +1,18 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="gtk libcroco gdk-pixbuf"
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --enable-pixbuf-loader \
+  --disable-static \
+  --disable-gtk-doc \
+  --enable-introspection=no
+}
+
+_postin() {
+rm -r $D/usr/share/gtk-doc
+}

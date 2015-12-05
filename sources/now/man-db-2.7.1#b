@@ -1,0 +1,21 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --docdir=/usr/share/doc/$PN \
+  --sysconfdir=/etc \
+  --disable-setuid \
+  --with-browser=/usr/bin/lynx \
+  --with-vgrind=/usr/bin/vgrind \
+  --with-grap=/usr/bin/grap \
+  --disable-dependency-tracking \
+  --disable-nls
+}
+
+_postint() {
+mkdir -pv $D/var/cache/man
+sed -i 's@/fsstnd@@' $D/etc/man_db.conf
+}

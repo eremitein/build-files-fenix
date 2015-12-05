@@ -1,0 +1,12 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep="openssl"
+
+_patch() {
+patch -Np0 -i $sD/${PN}-CVE-2009-1759.patch ||fail CVE-2009-1759
+patch -Np1 -i $sD/${PN}-negative-ints.patch ||fail negative-ints
+patch -Np1 -i $sD/${PN}-man.patch ||fail man
+autoreconf -fi ||fail autoreconf
+}

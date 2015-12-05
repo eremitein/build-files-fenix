@@ -1,0 +1,30 @@
+PN=`basename $0 | cut -d"#" -f1`
+sD="/sources/now"
+rD='/ram'
+
+time (
+rm -rf $rD/$PN
+rm -rf $rD/$PN-build
+tar xf $sD/${PN}*.tar.* -C $rD
+cd $rD/$PN
+
+rm -fv etc/standards.info
+sed -i.bak '/^INFO/s/standards.info //' etc/Makefile.in ||exit
+patch -Np1 -i $sD/${PN}-load_gcc_lto_plugin_by_default-1.patch ||exit
+patch -Np1 -i $sD/${PN}-lto_testsuite-1.patch ||exit
+
+mkdir -v ../${PN}-build
+cd ../${PN}-build
+
+../${PN}/configure --prefix=/usr   \
+                   --enable-shared \
+                   --disable-werror
+
+make tooldir=/usr ||exit
+make -k check
+make tooldir=/usr install
+
+) &> $0.log
+rm -rf $rD/$PN
+rm -rf $rD/$PN-build
+xz -f $0.log

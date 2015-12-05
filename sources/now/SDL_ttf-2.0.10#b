@@ -1,0 +1,22 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="SDL freetype"
+adep="libXt" 
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib \
+  --mandir=/usr/man \
+  --disable-dependency-tracking \
+  --enable-shared=yes \
+  --enable-static=no
+}
+
+_postin() {
+mkdir -pv $D/usr/share/doc/$PN
+cp -a CHANGES COPYING README \
+  $D/usr/share/doc/$PN
+}

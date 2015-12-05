@@ -1,0 +1,40 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="opengl SDL zlib"
+
+_patch() {
+patch -Np0 -i $sD/${PN}-builds.patch ||fail build-patch
+patch -Np0 -i $sD/${PN}-execstacks.patch ||fail execstacks
+patch -Np0 -i $sD/${PN}-concurrentMake.patch ||fail conc
+patch -Np2 -i $sD/${PN}_4dec1ccfb85d.patch ||fail 4dec1ccfb85d
+patch -Np1 -i $sD/${PN}-ogl.patch ||fail ogl
+sed 's#games/lib#share#' -i sample_gngeorc ||fail sed-rc
+sed -i -- 's@-f elf@-Ox -f elf@g' \
+ `grep -rl -- " -f elf " .` ||fail sed-elf
+#patch -Np0 -i $sD/${PN}-zlib.patch ||fail zlib
+mv configure.{in,ac}
+aclocal
+automake --add-missing
+autoreconf ||fail areconf
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-dependency-tracking \
+  --disable-sdltest
+#  --with-m68kcore=starscream \
+#  --with-z80core=mamez80 \
+#  --enable-embedded       Enable Embedded directory structure
+#  --disable-i386asm       disable the use of i386 optimisation
+# Specify which 68k core to use (cyclone|starscream|gen68k)
+# !! cyclone > don't compile; starscream > default; gen68k > longtime compile
+# Specify which z80 core to use (drz80|raze|mamez80)
+# !! drz80 > don't compile; raze > default; mamez80 > work fine
+}
+
+_postin() {
+_doc AUTHORS FAQ NEWS README* TODO sample_gngeorc
+}

@@ -1,0 +1,10 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep="alsa-lib"
+adep="openal pulseaudio jack portaudio SDL"
+
+_conf() {
+./configure --prefix=/usr --with-module-suffix=.so
+}

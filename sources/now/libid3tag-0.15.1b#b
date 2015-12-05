@@ -1,0 +1,35 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+_patch () {
+tar xf $sD/${PN}_gentoopatch.t* ||fail
+
+for f in ${PN}_gentoopatch/*ch
+  do patch -p1 -i $f ||fail $f
+done
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-dependency-tracking
+}
+
+_postin() {
+mkdir -pv $D/usr/lib/pkgconfig
+cat > $D/usr/lib/pkgconfig/id3tag.pc << "EOF"
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: id3tag
+Description: ID3 tag library
+Requires:
+Version: #version#
+Libs: -L${libdir} -lid3tag -lz
+Cflags: -I${includedir}
+EOF
+sed -i "s/#version#/${PN/libid3tag-}/" $D/usr/lib/pkgconfig/id3tag.pc
+}

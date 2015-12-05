@@ -1,0 +1,8 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_postin() {
+install -v -dm755 $D/usr/share/doc/$PN
+install -v -m644 doc/*.{html,png,css} $D/usr/share/doc/$PN
+}

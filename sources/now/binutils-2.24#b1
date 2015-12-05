@@ -1,0 +1,23 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check _install _postin
+unset _patch _check
+
+_conf() {
+mkdir -v ../${PN}-build
+cd ../${PN}-build
+
+AR=$LFS_TGT-ar \
+CC=$LFS_TGT-gcc \
+RANLIB=$LFS_TGT-ranlib \
+../$PN/configure \
+  --prefix=/tools \
+  --disable-nls \
+  --disable-werror \
+  --with-lib-path=/tools/lib \
+  --with-sysroot
+}
+
+_postin() {
+make -C ld clean
+make -C ld LIB_PATH=/usr/lib:/lib
+cp -v ld/ld-new /tools/bin
+}

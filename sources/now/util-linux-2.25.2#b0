@@ -1,0 +1,11 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check _install _postin
+unset _patch _check _postin
+
+_conf() {
+./configure \
+  --prefix=/tools \
+  --without-python \
+  --disable-makeinstall-chown \
+  --without-systemdsystemunitdir \
+  PKG_CONFIG=""
+}

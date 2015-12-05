@@ -1,0 +1,43 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+dep="pkg-config expat freetype"
+
+_patch() {
+patch -Np1 -i $sD/fontconfig-2.7.1-latin-reorder.patch ||fail latin-reorder
+patch -Np1 -i $sD/fontconfig-2.10.2-docbook.patch ||fail docbook
+## apply upstream patches that will be included in 2.10.93
+patch -Np1 -i $sD/${PN}-native-fonts.patch ||fail native-fonts
+patch -Np1 -i $sD/${PN}-automake-1.13.patch ||fail automake-1.13
+patch -Np1 -i $sD/${PN}-closing-fp.patch ||fail closing-fp
+patch -Np1 -i $sD/${PN}-ft-face.patch ||fail ft-face
+patch -Np1 -i $sD/${PN}-ft-face2.patch ||fail ft-face2
+patch -Np1 -i $sD/${PN}-fix-check.patch ||fail fix-check
+patch -Np1 -i $sD/${PN}-use-glob.patch ||fail use-glob
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
+  --docdir=/usr/share/doc/${PN} \
+  --with-default-fonts=/usr/share/fonts \
+  --with-add-fonts=/usr/local/share/fonts \
+  --with-templatedir=/etc/fonts/conf.avail \
+  --disable-static \
+  --disable-docs
+}
+
+_postin() {
+install -v -dm755 \
+  $D/usr/share/{man/man{3,5},doc/$PN/fontconfig-devel}
+install -v -m644 fc-*/*.1 $D/usr/share/man/man1
+install -v -m644 doc/*.3 $D/usr/share/man/man3
+install -v -m644 doc/fonts-conf.5 $D/usr/share/man/man5
+install -v -m644 doc/fontconfig-devel/* \
+  $D/usr/share/doc/$PN/fontconfig-devel
+install -v -m644 doc/*.{pdf,sgml,txt,html} \
+  $D/usr/share/doc/$PN
+}

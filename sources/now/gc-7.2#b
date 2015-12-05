@@ -1,0 +1,27 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+adep="libatomic_ops"
+
+_patch() {
+sed -i 's#AM_CONFIG_HEADER#AC_CONFIG_HEADERS#' \
+ configure.ac libatomic_ops/configure.ac ||fail sed-configure.ac
+sed -i 's#pkgdata#doc#' doc/doc.am ||fail sed-doc
+autoreconf -fi ||fail autoreconf
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --enable-cplusplus \
+  --disable-static \
+  --docdir=/usr/share/doc/$PN
+}
+
+_postin() {
+mkdir -pv $D/usr/share/man/man3
+install -v -m644 doc/gc.man $D/usr/share/man/man3/gc_malloc.3 ||fail man
+ln -sfv gc_malloc.3 $D/usr/share/man/man3/gc.3
+rm -v $D/usr/share/doc/$PN/gc.man
+}

@@ -1,0 +1,10 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check _install _postin
+unset _patch _check
+
+_conf() {
+./configure --prefix=/tools --without-bash-malloc
+}
+
+_postin() {
+ln -sfv bash /tools/bin/sh ||fail ln-sh
+}

@@ -1,0 +1,33 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+adep="openssl zip unzip sharutils"
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN/-2.8./2-8-} $rD/$PN
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc/lynx \
+  --datadir=/usr/share/doc/${PN} \
+  --with-zlib \
+  --with-bzlib \
+  --with-ssl \
+  --with-screen=ncursesw \
+  --enable-locale-charset
+
+echo "#define USE_OPENSSL_INCL 1" >> lynx_cfg.h
+}
+
+_destin() {
+make DESTDIR=$D install-full
+chgrp -v -R root $D/usr/share/doc/${PN}/lynx_doc
+
+sed -i 's/#\(LOCALE_CHARSET\):FALSE/\1:TRUE/' $D/etc/lynx/lynx.cfg
+sed -i 's/#\(DEFAULT_EDITOR\):/\1:vim/' $D/etc/lynx/lynx.cfg
+sed -i 's/#\(PERSISTENT_COOKIES\):FALSE/\1:TRUE/' $D/etc/lynx/lynx.cfg
+}

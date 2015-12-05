@@ -1,0 +1,21 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="gtk2+ libxml2"
+adep="alsa-lib d-bus pcre curl neon lame flac libvorbis faad2 ffmpeg SDL mpg123 libnotify pulseaudio libsndfile  libsamplerate lirc libcdio libcddb libmodplug libmms jack fluidsynth libcue libbinio wavpack"
+
+_conf() {
+TPUT=/bin/true \
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --datadir=/usr/share \
+  --enable-dbus \
+  --disable-nls \
+  --with-buildstamp="fenix"
+}
+
+_postin() {
+rm -r $D/usr/share/locale
+}

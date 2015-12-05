@@ -1,0 +1,19 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+_patch() {
+patch -Np1 -i $sD/${PN}-upstream_fixes-2.patch ||fail
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --enable-thread-safe \
+  --docdir=/usr/share/doc/${PN}
+}
+
+#_postin() {
+#make html
+#make DESTDIR=$D install-html
+#}

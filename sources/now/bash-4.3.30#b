@@ -1,0 +1,24 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --bindir=/bin \
+  --docdir=/usr/share/doc/$PN \
+  --without-bash-malloc \
+  --disable-nls \
+  --with-installed-readline
+}
+
+#_check() {
+#chown -Rv nobody .
+#su nobody -s /bin/bash -c "PATH=$PATH make tests"
+#}
+
+_postin() {
+echo -e "\n** you may run the newly compiled bash program
+(replacing the one that is currently being executed):
+exec /bin/bash --login +h\n"
+}

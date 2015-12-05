@@ -1,0 +1,23 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _conf _build _check _postin _makepkg
+
+dep="gtk+:2 SDL zlib"
+adep="zenity opengl lua"
+
+_patch() {
+sed -i \
+ -e '/DEBUG/s/1/0/' \
+ -e '/LUA/s/1/0/' SConstruct ||fail sed
+}
+
+_destin() {
+scons
+scons --prefix=$D/usr install ||fail destin
+}
+
+_postin() {
+cp -rv documentation/ $D/usr/share/fceux
+cp -v NewPPUtests.txt $D/usr/share/fceux/documentation
+cp -v fceux.{desktop,png} $D/usr/share/fceux
+}

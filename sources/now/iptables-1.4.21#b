@@ -1,0 +1,20 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sbindir=/sbin \
+  --with-xtlibdir=/lib/xtables \
+  --enable-libipq
+}
+
+_postin() {
+mkdir -pv $D/lib
+ln -sfv ../../sbin/xtables-multi $D/usr/bin/iptables-xml
+for file in ip4tc ip6tc ipq iptc xtables; do
+  mv -v $D/usr/lib/lib${file}.so.* $D/lib
+  ln -sfv ../../lib/$(readlink $D/usr/lib/lib${file}.so) $D/usr/lib/lib${file}.so
+done
+}

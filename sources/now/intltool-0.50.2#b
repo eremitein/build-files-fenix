@@ -1,0 +1,8 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_postin() {
+mkdir -pv $D/usr/share/doc/$PN
+install -v -Dm644 doc/I18N-HOWTO $D/usr/share/doc/$PN/I18N-HOWTO
+}

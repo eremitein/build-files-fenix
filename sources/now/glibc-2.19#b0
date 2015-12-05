@@ -1,0 +1,30 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check _install _postin
+unset _check _postin
+
+_patch() {
+if [ ! -r /usr/include/rpc/types.h ]; then
+  su -c 'mkdir -pv /usr/include/rpc'
+  su -c 'cp -v sunrpc/rpc/*.h /usr/include/rpc'
+fi
+if [[ `echo $CFLAGS |grep pentium4` ]]; then
+  sed -i 's/=i686/=pentium4/' sysdeps/i386/i686/Makefile ||fail sed-flags
+elif [[ `echo $CFLAGS |grep amdfam10` ]]; then
+  sed -i 's/=i686/=amdfam10/' sysdeps/i386/i686/Makefile ||fail sed-flags
+fi
+}
+
+_conf() {
+mkdir -v ../${PN}-build
+cd ../${PN}-build
+
+../$PN/configure \
+  --prefix=/tools \
+  --host=$LFS_TGT \
+  --build=$(../$PN/scripts/config.guess) \
+  --disable-profile \
+  --enable-kernel=2.6.32 \
+  --with-headers=/tools/include \
+  libc_cv_forced_unwind=yes \
+  libc_cv_ctors_header=yes \
+  libc_cv_c_cleanup=yes
+}

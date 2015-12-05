@@ -1,0 +1,28 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check _install _postin
+unset _check _postin
+
+PN=${PN/libstdc++/gcc}
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN/.3/.2} $rD/$PN
+}
+
+_patch() {
+bzcat $sD/gcc-4.8.2-4.8.3.diff.bz2 |patch -Np1 ||fail 4.8.2-4.8.3
+}
+
+_conf() {
+mkdir -v ../${PN}-build
+cd ../${PN}-build
+
+../${PN}/libstdc++-v3/configure     \
+    --host=$LFS_TGT                 \
+    --prefix=/tools                 \
+    --disable-multilib              \
+    --disable-shared                \
+    --disable-nls                   \
+    --disable-libstdcxx-threads     \
+    --disable-libstdcxx-pch         \
+    --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/${PN/gcc-}
+}

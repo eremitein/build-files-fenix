@@ -1,0 +1,33 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="libpng SDL zlib glu opengl pkg-config xz"
+adep="ffmpeg glibmm gtkmm gtkglextmm lirc libintl
+cairo openal wxGTK nasm yasm gettext"
+
+_patch() {
+patch -Np1 -i $sD/${PN}-desktop.patch ||fail desktop
+patch -Np1 -i $sD/${PN}-no-nls.patch ||fail nonls
+#patch -Np0 -i $sD/${PN}-header.patch ||fail header
+# Fix issue with zlib-1.2.5.1 macros (bug #383179)
+sed -i '1i#define OF(x) x' src/common/memgzio.c ||fail sed-zlib
+}
+
+_conf() {
+cmake . \
+ -DCMAKE_C_FLAGS="$CFLAGS -fpermissive" \
+ -DCMAKE_CXX_FLAGS="$CXXFLAGS -fpermissive" \
+ -DCMAKE_INSTALL_PREFIX="/usr" \
+ -DCMAKE_SKIP_RPATH=ON \
+ -DENABLE_ASM_SCALERS=ON -DENABLE_ASM_CORE=ON \
+ -DENABLE_GTK=OFF \
+ -DENABLE_NLS=OFF \
+ -DENABLE_SDL=ON
+}
+
+_postin() {
+mkdir -pv $D/usr/share/{doc/${PN},man/man1}
+cp -v debian/vbam.1 $D/usr/share/man/man1
+cp -v doc/{ReadMe.SDL,License,gpl,DevInfo,ips}* $D/usr/share/doc/$PN
+}

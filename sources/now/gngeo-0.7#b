@@ -1,0 +1,44 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _checkin
+
+dep="opengl SDL zlib"
+
+_patch() {
+patch -Np0 -i $sD/${PN}-build.patch ||fail build-patch
+patch -Np0 -i $sD/${PN}-execstacks.patch ||fail execstacks
+patch -Np0 -i $sD/${PN}-concurrentMake.patch ||fail con-make
+#patch -Np0 -i $sD/${PN}-romrc.patch ||fail romrc
+#patch -Np1 -i $sD/${PN}-ogl.patch ||fail ogl
+sed -e 's@/usr/games/lib/xmame@/usr/share/gngeo@g' \
+ -e 's@arcade or home@& or unibios@' \
+ -i sample_gngeorc ||fail sed-config
+sed -i 's@or arcade@& or unibios@' src/conf.c ||fail sed-conf
+sed -i 's@or \fBarcade\fP@, \fBarcade\fP or \fBunibios\fP@' \
+ gngeo.1 ||fail sed-man
+sed -i -- 's@-f elf@-Ox -f elf@g' \
+ `grep -rl -- " -f elf " .` ||fail sed-elf
+#patch -Np0 -i $sD/${PN}-zlib.patch ||fail zlib
+mv configure.{in,ac}
+aclocal
+automake --add-missing
+autoreconf ||fail areconf
+}
+
+_conf() {
+./configure --prefix=/usr --enable-gl2
+#  --disable-i386asm
+#  --enable-gp2x           Enable GP2X build
+#  --enable-star           use starscream as 68k emu (need nasm, i386 only)
+#  --enable-gen68k         use generator68k as 68k emu (portable C)
+#  --enable-cyclone        use cyclone as 68k emu (Arm asm)
+#  --enable-raze           use raze as z80 emu (need nasm, i386 only)
+#  --enable-mamez80        use mamez80 as z80 emu (portable C)
+#  --enable-drz80          use drz80 as z80 emu (Arm asm)
+#  --enable-gui            Enable gui support (experimental !!segfault)
+#  --enable-gl2            Use an other opengl blitter (may help some driver)
+}
+
+_postin() {
+_doc AUTHORS FAQ NEWS README* TODO sample_gngeorc
+}

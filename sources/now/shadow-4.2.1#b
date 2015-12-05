@@ -1,0 +1,28 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+_patch() {
+#patch -Np1 -i $sD/${PN}-dots-in-usernames.patch ||fail
+sed -i 's/groups$(EXEEXT) //' src/Makefile.in ||fail sed-groups
+find man -name Makefile.in -exec sed -i 's/groups\.1 / /' {} \; ||fail find
+sed -i -e 's@#ENCRYPT_METHOD DES@ENCRYPT_METHOD SHA512@' \
+  -e 's@/var/spool/mail@/var/mail@' etc/login.defs ||fail sed-sha512
+sed -i 's/1000/999/' etc/useradd ||fail sed-999
+}
+
+_conf() {
+./configure \
+  --sysconfdir=/etc \
+  --disable-nls \
+  --with-group-name-max-length=32
+}
+
+_postin() {
+mkdir -pv $D/bin
+mv -v $D/usr/bin/passwd $D/bin ||fail mv-bin
+cat > $D/${PN}.sh << "EOSH"
+pwconv
+grpconv
+EOSH
+}

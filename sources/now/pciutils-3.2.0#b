@@ -1,0 +1,40 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _conf _check _postin _makepkg
+
+adep="which lynx wget curl"
+
+_build() {
+make \
+ PREFIX=/usr \
+ SHAREDIR=/usr/share/misc \
+ MANDIR=/usr/share/man \
+ SHARED=yes \
+ ZLIB=no \
+ all ||fail make
+}
+
+_destin() {
+make \
+ PREFIX=/usr \
+ SHAREDIR=/usr/share/misc \
+ MANDIR=/usr/share/man \
+ SHARED=yes \
+ ZLIB=no \
+ DESTDIR=$D \
+ install install-lib ||fail destinst
+}
+
+_postin() {
+chmod -v 755 $D/usr/lib/libpci.so.3.2.0
+cat > $D/${PN}.sh << "EOSH"
+echo -e "\n  The pci.ids data file is constantly being updated. To get 
+a current version of this file, run update-pciids as the root user. 
+This program requires the which-2.20 script or program to find curl, 
+lynx or wget which are used to download the most current file, and 
+then replace the existing file in /usr/share/misc.
+  You may wish to add an entry to root's (or any other user who has 
+write privilege to /usr/share/misc) crontab to automatically update 
+the pci.ids file periodically\n"
+EOSH
+}

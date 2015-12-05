@@ -1,0 +1,22 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check _install _postin
+unset _patch _check _postin
+
+_conf() {
+mkdir -v ../${PN}-build
+cd ../${PN}-build
+
+../$PN/configure \
+  --prefix=/tools \
+  --with-sysroot=$LFS \
+  --with-lib-path=/tools/lib \
+  --target=$LFS_TGT \
+  --disable-nls \
+  --disable-werror
+}
+
+_install() {
+case $(uname -m) in
+  x86_64) mkdir -v /tools/lib && ln -sfv lib /tools/lib64 ;;
+esac
+make install
+}

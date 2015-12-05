@@ -1,0 +1,44 @@
+PN=`basename $0 | cut -d"#" -f1`
+sD="/sources/blfs-src"
+rD='/ram'
+
+time (
+rm -rf $rD/$PN
+tar xf $sD/${PN}*.tar.* -C $rD
+cd $rD/$PN
+
+patch -Np1 -i $sD/${PN}-fixes-1.patch ||exit
+sed -i '/-fforce-mem/d' configure* ||exit
+sed -i 's/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/' configure.ac ||exit
+touch NEWS AUTHORS ChangeLog
+autoreconf -fi
+
+./configure --prefix=/usr \
+  --enable-accuracy \
+  --enable-sso \
+  --disable-dependency-tracking \
+  --disable-static
+  #--enable-fpm=intel \
+
+make ||exit
+make install
+
+mkdir -pv /usr/lib/pkgconfig
+cat > /usr/lib/pkgconfig/mad.pc << "EOF"
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: mad
+Description: MPEG audio decoder
+Requires:
+Version: #version#
+Libs: -L${libdir} -lmad
+Cflags: -I${includedir}
+EOF
+sed -i "s/#version#/${PN/libmad-}/" /usr/lib/pkgconfig/mad.pc
+
+) &> $0.log
+rm -rf $rD/$PN
+xz $0.log

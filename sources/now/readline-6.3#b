@@ -1,0 +1,29 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+_patch() {
+patch -Np1 -i $sD/${PN}-upstream_fixes-3.patch ||fail
+sed -i '/MV.*old/d' Makefile.in ||fail sed-Makefile.in
+sed -i '/{OLDSUFF}/c:' support/shlib-install ||fail sed-shlib
+}
+
+_conf() {
+./configure --prefix=/usr --docdir=/usr/share/doc/$PN
+}
+
+_build() {
+make SHLIB_LIBS=-lncurses ||fail make
+}
+
+_destin() {
+make SHLIB_LIBS=-lncurses DESTDIR=$D install ||fail destinst
+}
+
+_postin() {
+mkdir -pv $D/{lib,usr/share/doc/$PN}
+mv -v $D/usr/lib/lib{readline,history}.so.* $D/lib ||fail mv-lib
+ln -sfv ../../lib/$(readlink $D/usr/lib/libreadline.so) $D/usr/lib/libreadline.so
+ln -sfv ../../lib/$(readlink $D/usr/lib/libhistory.so ) $D/usr/lib/libhistory.so
+install -v -m644 doc/*.{ps,pdf,html,dvi} $D/usr/share/doc/$PN
+}

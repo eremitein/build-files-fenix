@@ -1,0 +1,24 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="glib libjpeg-turbo libpng tiff"
+adep="xorg-libraries"
+
+_patch() {
+sed -i 's#l \(gtk-.*\).sgml#& -o \1#' \
+ docs/{faq,tutorial}/Makefile.in ||fail sed-docs
+sed -i 's#.*@man_#man_#' docs/reference/gtk/Makefile.in ||fail sed-man
+sed -i -e 's#pltcheck.sh#$(NULL)#g' gtk/Makefile.in ||fail sed-plt
+}
+
+_conf() {
+./configure --prefix=/usr --sysconfdir=/etc
+}
+
+_postin() {
+cat > $D/${PN}.sh << "EOSH"
+gtk-query-immodules-2.0 --update-cache
+EOSH
+rm -r $D/usr/share/{gtk-doc,locale}
+}

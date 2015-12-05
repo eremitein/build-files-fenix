@@ -1,0 +1,35 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+_patch() {
+patch -Np1 -i $sD/catdoc-0.94.2-flags.patch ||fail flags
+patch -Np1 -i $sD/catdoc-0.94.2+autoconf-2.63.patch ||fail autoconf
+patch -Np1 -i $sD/${PN}-destdir.patch ||fail destdir
+patch -Np1 -i $sD/${PN}-desktop.patch ||fail desktop
+echo ".PHONY: all install clean distclean dist" >> Makefile.in
+autoconf ||fail autoconf
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --mandir=/usr/share/man \
+  --sysconfdir=/etc \
+  --with-install-root=$D
+}
+
+_build() {
+make LIB_DIR=/usr/share/catdoc ||fail make
+}
+
+_destin() {
+make -j1 mandir=$D/usr/share/man/man1 install
+if [[ -e $D/usr/bin/xls2csv ]]; then
+  mv -vf $D/usr/bin/xls2csv \
+    $D/usr/bin/xls2csv-${PN/catdoc-/} || fail mv
+  ln -sv xls2csv-${PN/catdoc-/} $D/usr/bin/xls2csv
+fi
+mkdir -pv $D/usr/share/man/man1
+cp doc/*.1 $D/usr/share/man/man1
+}

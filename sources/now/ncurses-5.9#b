@@ -1,0 +1,51 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --mandir=/usr/share/man \
+  --with-shared \
+  --without-debug \
+  --enable-pc-files \
+  --enable-widec
+}
+
+_postin() {
+mkdir -pv $D/lib
+mv -v $D/usr/lib/libncursesw.so.5* $D/lib
+ln -sfv ../../lib/$(readlink $D/usr/lib/libncursesw.so) \
+  $D/usr/lib/libncursesw.so ||fail ln-libncursesw.so
+for lib in ncurses form panel menu ; do
+  rm -vf $D/usr/lib/lib${lib}.so
+  echo "INPUT(-l${lib}w)" > $D/usr/lib/lib${lib}.so
+  ln -sfv lib${lib}w.a $D/usr/lib/lib${lib}.a ||fail ln-lib
+  ln -sfv ${lib}w.pc $D/usr/lib/pkgconfig/${lib}.pc ||fail ln-pconfig
+done
+ln -sfv libncurses++w.a $D/usr/lib/libncurses++.a ||fail ln-libncurses++w.a
+
+rm -vf $D/usr/lib/libcursesw.so
+echo "INPUT(-lncursesw)" > $D/usr/lib/libcursesw.so
+ln -sfv libncurses.so $D/usr/lib/libcurses.so ||fail ln-libncurses.so
+ln -sfv libncursesw.a $D/usr/lib/libcursesw.a ||fail ln-libncursesw.a
+ln -sfv libncurses.a $D/usr/lib/libcurses.a ||fail ln-libncurses.a
+
+mkdir -pv $D/usr/share/doc/${PN}
+cp -v -R doc/* $D/usr/share/doc/${PN}
+}
+
+### Note
+#   The instructions above don't create non-wide-character Ncurses libraries since no package installed by compiling from sources
+#   would link against them at runtime. If you must have such libraries because of some binary-only application or to be compliant
+#   with LSB, build the package again with the following commands:
+#
+#make distclean
+#./configure --prefix=/usr    \
+#            --with-shared    \
+#            --without-normal \
+#            --without-debug  \
+#            --without-cxx-binding
+#make sources libs
+#cp -fav --remove-destination *lib/lib*.so.5* /usr/lib
+###

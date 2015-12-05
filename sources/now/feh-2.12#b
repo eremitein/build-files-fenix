@@ -1,0 +1,18 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep="imlib2 giblib libpng libX11"
+adep="libjpeg xproto libXt libXinerama libexif curl"
+
+_conf() {
+sed -i 's|share/man|man|g' config.mk
+}
+
+_build() {
+make PREFIX=/usr ||fail make
+}
+
+_destin() {
+make PREFIX=/usr DESTDIR=$D install ||fail destinst
+}

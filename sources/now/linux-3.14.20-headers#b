@@ -1,0 +1,19 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _cleansrc _unpack _patch _conf _check _postin _cleanpkg _makepkg
+
+_cdsrc() {
+cd `pwd`/${PN/-headers} ||fail cdsrc
+D=`pwd`/PKG
+echo "[ `date "+%F %T"` ]"
+}
+
+_build() {
+make mrproper
+#make headers_check
+}
+
+_destin() {
+make INSTALL_HDR_PATH=$D/usr headers_install ||fail destinst
+find $D/usr/include \( -name .install -o -name ..install.cmd \) -delete
+}

@@ -1,0 +1,36 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="libiconv libffi zlib pcre python docbook-xml-dtd libxslt gettext gtk-doc-am"
+adep="attr fam systemtap shared-mime-info"
+
+_patch() {
+touch -t 201306082300 gtk-doc.make
+# thread test fails, upstream bug #679306
+patch -Np1 -i $sD/glib-2.34.0-testsuite-skip-thread4.patch ||fail skip-thread
+# gdbus-codegen is a separate package
+#patch -Np1 -i $sD/glib-2.37.x-external-gdbus-codegen.patch ||fail gdbus-codegen
+# do not allow libgobject to unload; bug #405173, https://bugzilla.gnome.org/show_bug.cgi?id=707298
+patch -Np1 -i $sD/glib-2.36.4-znodelete.patch ||fail znodelete
+# patches from 2.39.x / 2.40.x
+patch -Np1 -i $sD/${PN}-sigaction.patch ||fail sigaction #501330
+# leave python shebang alone
+sed -e '/${PYTHON}/d' \
+ -i glib/Makefile.{am,in} ||fail sed-shebang
+patch -Np1 -i $sD/${PN}-configure.patch ||fail configure #500996
+autoreconf ||fail reconf
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --with-pcre=system \
+  --disable-dependency-tracking
+}
+
+_postin() {
+install -d $D/usr/man/man1
+find docs -name '*.1' -exec install -m 0644 {} $D/usr/man/man1 \;
+rm -rf $D/usr/share/{gtk-doc,locale}
+}

@@ -1,0 +1,18 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+_patch() {
+sed -i -e '/test-bison/d' tests/Makefile.in ||fail sed
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-nls \
+  --docdir=/usr/share/doc/$PN
+}
+
+_postin() {
+ln -sv flex /usr/bin/lex
+}

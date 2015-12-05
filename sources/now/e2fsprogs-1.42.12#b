@@ -1,0 +1,35 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+mkdir -v ${PN}-build
+cd ${PN}-build
+
+LIBS=-L/tools/lib \
+CFLAGS="${CFLAGS} -I/tools/include" \
+PKG_CONFIG_PATH=/tools/lib/pkgconfig \
+../configure \
+  --prefix=/usr \
+  --bindir=/bin \
+  --with-root-prefix="" \
+  --enable-elf-shlibs \
+  --disable-libblkid \
+  --disable-libuuid \
+  --disable-uuidd \
+  --disable-fsck \
+  --disable-nls
+}
+
+#_check() {
+#ln -sfv /tools/lib/lib{blk,uu}id.so.1 lib ||fail ln-lib
+#make -k LD_LIBRARY_PATH=/tools/lib check
+#}
+
+_destin() {
+make -j1 DESTDIR=$D install install-libs ||fail destinst
+}
+
+_postin() {
+chmod -v u+w $D/usr/lib/{libcom_err,libe2p,libext2fs,libss}.a
+}

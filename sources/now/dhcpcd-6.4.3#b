@@ -1,0 +1,39 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep=""
+adep=""
+
+_conf() {
+./configure \
+  --libexecdir=/lib/dhcpcd \
+  --dbdir=/var/tmp
+}
+
+#_postin() {
+#make install-service-dhcpcd
+
+#cat > /etc/sysconfig/ifconfig.eth0 << "EOF"
+#ONBOOT="yes"
+#IFACE="eth0"
+#SERVICE="dhcpcd"
+#DHCP_START="-b -q <insert appropriate start options here>"
+#DHCP_STOP="-k <insert additional stop options here>"
+#EOF
+
+## fixed ip ##
+#cat > /etc/sysconfig/ifconfig.eth0 << "EOF"
+#ONBOOT="yes"
+#IFACE="eth0"
+#SERVICE="dhcpcd"
+#DHCP_START="-b -q -S ip_address=192.168.0.10/24 -S routers=192.168.0.1"
+#DHCP_STOP="-k"
+#EOF
+
+#cat > /etc/resolv.conf.head << "EOF"
+## OpenDNS servers
+#nameserver 208.67.222.222
+#nameserver 208.67.220.220
+#EOF
+#}

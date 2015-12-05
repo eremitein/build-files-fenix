@@ -1,0 +1,19 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _conf _patch _check _postin _makepkg
+
+_patch() {
+sed -i '/^TARGETS/s@arpd@@g' misc/Makefile ||fail sed-misc
+sed -i /ARPD/d Makefile ||fail sed-Makefile
+sed -i 's/arpd.8//' man/man8/Makefile ||fail sed-man8
+#sed -i 's/-Werror//' Makefile ||fail sed-Werror
+}
+
+_build() {
+make CCOPTS="$CFLAGS" ||fail make
+}
+
+_destin() {
+make DOCDIR=/usr/share/doc/$PN DESTDIR=$D \
+ MANDIR=/usr/share/man install ||fail destinst
+}

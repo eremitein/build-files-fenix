@@ -1,0 +1,33 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+_patch() {
+rm -fv etc/standards.info
+sed -i.bak '/^INFO/s/standards.info //' etc/Makefile.in ||fail sed-standards
+patch -Np1 -i $sD/${PN}-load_gcc_lto_plugin_by_default-1.patch ||fail lto
+patch -Np1 -i $sD/${PN}-lto_testsuite-1.patch ||fail lto-test
+patch -Np1 -i $sD/${PN}-multiple_plugins-1.patch ||fail multiple
+}
+
+_conf() {
+mkdir -v ../${PN}-build
+cd ../${PN}-build
+
+../${PN}/configure \
+  --prefix=/usr \
+  --enable-shared \
+  --disable-werror \
+  --disable-nls
+}
+
+_build() {
+make tooldir=/usr ||fail make
+}
+
+_destin() {
+make tooldir=/usr DESTDIR=$D install ||fail destinst
+#rm -fv $D/etc/standards.info
+#mkdir -pv $D/usr/include
+#cp -v ../$PN/include/libiberty.h $D/usr/include ||fail cp-libiberty
+}

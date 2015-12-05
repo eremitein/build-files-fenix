@@ -1,0 +1,22 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="glib libxml2"
+
+_patch() {
+# don't waste time building tests
+sed 's/^\(SUBDIRS .*\=.*\)tests\(.*\)$/\1\2/' \
+ -i Makefile.am Makefile.in ||fail disable-tests
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-static
+}
+
+_postin() {
+ln -s libcroco-0.6.la $D/usr/lib/libcroco.la
+rm -r $D/usr/share
+}

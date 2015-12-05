@@ -1,0 +1,29 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+_patch() {
+patch -Np0 -i $sD/${PN}-man-unicode-dashes.patch ||fail unicode-dashes
+patch -Np1 -i $sD/${PN}-parallel-mom.patch ||fail parallel-mom
+sed -i -e 's/^[ \t]\+g=g$/g=/' configure ||fail sed-g-prefix
+}
+
+_conf() {
+PAGE=A4 \
+./configure --prefix=/usr
+}
+
+_destin() {
+make DESTDIR=$D docdir=/usr/share/doc/$PN \
+  install ||fail destinst
+
+sed -e 's|^\(papersize\).*|\1 /etc/papersize|' \
+ -i $D/usr/share/groff/current/font/*/DESC ||fail sed-papersize
+
+mkdir -pv $D/etc
+echo 'A4' > $PKG/etc/papersize
+
+ln -sv eqn $D/usr/bin/geqn ||fail ln-geqn
+ln -sv tbl $D/usr/bin/gtbl ||fail ln-gtbl
+#ln -sv soelim $D/usr/bin/zsoelim ||fail ln-zsoelim
+}

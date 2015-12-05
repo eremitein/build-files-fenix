@@ -1,0 +1,39 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-dependency-tracking \
+  --disable-nls
+}
+
+_postin() {
+make TEXMF=/usr/share/texmf DESTDIR=$D \
+ install-tex ||fail install-tex
+
+cat > $D/${PN}.sh << "EOSH"
+pushd /usr/share/info
+rm -fv dir
+for f in *
+  do install-info $f dir 2>/dev/null
+done
+popd
+echo '
+[i] The Info documentation system uses a plain text file to hold
+its list of menu entries. The file is located at /usr/share/info/dir.
+Unfortunately, due to occasional problems in the Makefiles of various
+packages, it can sometimes get out of sync with the info pages installed
+on the system. If the /usr/share/info/dir file ever needs to be recreated,
+the following optional commands will accomplish the task:
+
+pushd /usr/share/info
+rm -fv dir
+for f in *
+  do install-info $f dir 2>/dev/null
+done
+popd
+'
+EOSH
+}

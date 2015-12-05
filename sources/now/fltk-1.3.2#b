@@ -1,0 +1,60 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep="libpng jpeg-turbo zlib libICE libSM libXext libXt"
+adep="cairo opengl xinerama xft xineramaproto"
+
+_patch() {
+rm -rf zlib jpeg png || die
+patch -Np1 -i $sD/fltk-1.3.1-as-needed.patch ||fail asneed
+patch -Np1 -i $sD/${PN}-desktop.patch ||fail desktop
+patch -Np1 -i $sD/fltk-1.3.0-share.patch ||fail share
+patch -Np1 -i $sD/fltk-1.3.0-conf-tests.patch ||fail tests
+sed -e 's:@HLINKS@::g' -i FL/Makefile.in ||fail sed-hlinks
+sed -i \
+ -e '/C\(XX\)\?FLAGS=/s:@C\(XX\)\?FLAGS@::' \
+ -e '/^LDFLAGS=/d' \
+ "fltk-config.in" ||fail sed-flags
+# some fixes introduced because slotting
+sed -i \
+ -e '/RANLIB/s:$(libdir)/\(.*LIBNAME)\):$(libdir)/`basename \1`:g' \
+ src/Makefile ||fail sed-slott
+# docs in proper docdir
+sed -i \
+ -e "/^docdir/s:fltk:${PN}/html:" \
+ -e "/SILENT:/d" \
+ makeinclude.in ||fail sed-docs
+#sed -e "s/7/$(get_version_component_range 3)/" \
+cat $sD/FLTKConfig.cmake > CMake/FLTKConfig.cmake \
+ ||fail config.cmake
+sed -e 's:-Os::g' -i configure.in ||fail sed-Os
+#use prefix && append-ldflags -Wl,-rpath -Wl,"${LIBDIR}"
+autoconf ||fail autoconf
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --enable-xdbe \
+  --enable-xft \
+  --enable-xinerama \
+  --enable-threads \
+  --enable-shared \
+  --enable-largefile \
+  --enable-gl \
+  --disable-localjpeg \
+  --disable-localpng \
+  --disable-localzlib \
+  --docdir=/usr/share/doc/${PN}/html
+}
+
+_postin() {
+make -C fluid DESTDIR=$D install-linux ||fail fluid
+#make -C documentation DESTDIR=$D install ||fail doc
+mkdir -pv $D/usr/share/{cmake/Modules,doc/$PN/examples}
+cp -rv CHANGES README CREDITS ANNOUNCEMENT $D/usr/share/doc/$PN
+cp -rv test/*.{h,cxx,fl} test/demo.menu \
+ $D/usr/share/doc/$PN/examples
+cp -rv CMake/FLTK*.cmake $D/usr/share/cmake/Modules
+}

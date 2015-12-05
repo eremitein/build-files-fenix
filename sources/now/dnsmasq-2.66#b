@@ -1,0 +1,17 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _conf _check _postin _makepkg
+
+dep="pkgconfig xz"
+adep="dbus libidn lua gettext"
+
+_patch() {
+patch -Np1 -i $sD/${PN}-config.patch ||fail
+}
+
+_destin() {
+make PREFIX=$D/usr install ||fail destinst
+
+mkdir -pv $D/{etc,var/lib/dhcp}
+install -m 644 dnsmasq.conf.example $D/etc/ ||fail dnsmasq.conf
+}

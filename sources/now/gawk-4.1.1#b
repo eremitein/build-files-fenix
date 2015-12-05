@@ -1,0 +1,12 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure --prefix=/usr --disable-nls
+}
+
+_postin() {
+mkdir -pv $D/usr/share/doc/$PN
+cp -v doc/{awkforai.txt,*.{eps,pdf,jpg}} $D/usr/share/doc/$PN
+}

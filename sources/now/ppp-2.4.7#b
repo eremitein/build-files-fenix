@@ -1,0 +1,178 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+adep="libpcap pam curl openssl"
+
+_patch() {
+patch -p1 -i $sD/${PN}-nofilter.patch ||fail nofilter
+#patch -p1 -i $sD/${PN}-pppol2tp.patch ||fail
+sed -i -e '/^CFLAGS/s/\t=/+=/' \
+  -e '/^CFLAGS/s/ =/+=/' \
+  -e '/^CFLAGS/s/CFLAGS=/CFLAGS+=/' \
+  `grep -rlz -- "CFLAGS" .` ||fail sed-cflags
+sed -i -e 's/-O2//g' -e 's/-O//g' -e 's/-g//g' \
+  `grep -rlz -- "-O" .` ||fail sed-remove
+}
+
+_conf() {
+./configure --prefix=/usr --sysconfdir=/etc
+}
+
+_destin() {
+make -j1 INSTROOT=$D install install-etcppp ||fail destinst
+}
+
+_postin() {
+cat > $D/${PN}.sh << "EOSH"
+groupadd -g 52 pppusers
+
+echo -e "\n** If necessary add the users who may run PPP to the pppusers group:
+
+usermod -a -G pppusers <username>
+"
+EOSH
+
+mkdir -pv $D/{etc/ppp/peers,usr/{bin,share/man/man1}} ||fail install-dirs
+install -m755 scripts/{pon,poff,plog} $D/usr/bin \
+ ||fail install-scripts
+install -m644 scripts/pon.1 $D/usr/share/man/man1 \
+ ||fail install-pon.1
+
+cat > $D/etc/ppp/pap-secrets <<"EOF"
+# username      remotename    password        IP for the peer
+jdoe            dialup        guessit         *
+EOF
+chmod 600 $D/etc/ppp/pap-secrets ||fail chmod-pap-sec
+
+cat > $D/etc/ppp/ip-up <<"EOF"
+#!/bin/sh
+if [ "$USEPEERDNS" = "1" ] && [ -s /etc/ppp/resolv.conf ]
+then
+  install -m 644 /etc/ppp/resolv.conf /etc/resolv.conf
+fi
+EOF
+chmod 755 $D/etc/ppp/ip-up ||fail chmod-ipup
+
+cat > $D/etc/ppp/dialup.chat <<"EOF"
+ABORT BUSY ABORT 'NO CARRIER' ABORT VOICE ABORT 'NO DIALTONE'
+ABORT 'NO DIAL TONE' ABORT 'NO ANSWER' ABORT DELAYED
+ABORT ERROR ABORT BLACKLISTED
+
+TIMEOUT 5
+'' AT
+# \T is the phone number, passed from /etc/ppp/peers/dialup
+OK-+++\dATH0-OK ATD\T
+TIMEOUT 75
+CONNECT \d\c
+EOF
+
+cat > $D/etc/ppp/peers/dialup <<"EOF"
+# Your username at the ISP
+user "jdoe"
+# What should be in the second column in /etc/ppp/*-secrets
+remotename "dialup"
+# Replace TTTTTTT with the ISP phone number
+connect "/usr/sbin/chat -T TTTTTTT -f /etc/ppp/dialup.chat"
+
+# Specify your modem serial port and speed below
+/dev/ttyS0
+115200
+
+# The settings below usually don't need to be changed
+updetach
+noauth
+hide-password
+debug
+lock
+defaultroute
+noipdefault
+usepeerdns
+EOF
+
+cat > $D/etc/ppp/gprs.chat <<"EOF"
+ABORT BUSY ABORT 'NO CARRIER' ABORT VOICE ABORT 'NO DIALTONE'
+ABORT 'NO DIAL TONE' ABORT 'NO ANSWER' ABORT DELAYED
+ABORT ERROR ABORT BLACKLISTED
+#ECHO ON
+TIMEOUT 1
+'' AT
+OK-+++\dATH0-OK ATZ
+#OK AT+CPIN?
+#'"+CPIN: READY"-AT+CPIN="0739"--"+CPIN: SIM PIN"-AT'
+# \T is the APN, passed from /etc/ppp/peers/gprs
+# This example stores the APN as profile #1 in the phone.
+# The "telephone number", *99***<profile_number>#, is always the same.
+# If you want to store this as profile #2, change 1 to 2 in the
+# following two lines.
+OK AT+CGQREQ=1,0,0,0,0,0
+OK AT+CGQMIN=1,0,0,0,0,0
+OK AT+CGDCONT=1,"IP","\T"
+OK ATD*99***1#
+CONNECT \d\c
+EOF
+
+cat > $D/etc/ppp/peers/gprs <<"EOF"
+# Replace inet.example.com with the proper APN for your provider
+connect "/usr/sbin/chat -T inet.example.com -f /etc/ppp/gprs.chat"
+
+# Specify your cellphone serial port and speed below
+# Note: you must manually send some vendor-specific AT commands
+# to certain old cellular phones (such as Sony-Ericsson T200)
+# in order to achieve connection speed more than 9600 bits per second.
+/dev/ttyS1
+115200
+
+# The settings below usually don't need to be changed
+noauth
+updetach
+debug
+lock
+defaultroute
+noipdefault
+usepeerdns
+# Disable some PPP protocol features which are usually not supported by
+# mobile carriers (from Debian)
+novj
+novjccomp
+noccp
+nomagic
+EOF
+
+cat > $D/etc/ppp/peers/adsl <<"EOF"
+plugin rp-pppoe.so
+# Ethernet interface name
+eth0
+# Your username at the ISP
+user "jdoe"
+# What should be in the second column in /etc/ppp/*-secrets
+remotename "adsl"
+# If needed, specify the service and the access concentrator name
+# rp_pppoe_service "internet"
+# rp_pppoe_ac "ac1"
+unit 0
+mtu 1454
+eap-timeout 5
+pap-timeout 5
+lcp-echo-interval 5
+lcp-echo-failure 20
+# The settings below usually don't need to be changed
+noauth
+hide-password
+updetach
+debug
+defaultroute
+noipdefault
+usepeerdns
+# Do  not exit after a connection is terminated; instead try to reopen the connection
+persist
+maxfail 4
+EOF
+
+install -v -d $D/etc/sysconfig/network-devices/ifconfig.eth0
+cat > $D/etc/sysconfig/network-devices/ifconfig.eth0/pppoe << "EOF"
+ONBOOT="yes"
+SERVICE="pppoe"
+PPP_OPTS="user jdoe remotename adsl"
+EOF
+}

@@ -1,0 +1,16 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="cairo harfbuzz xorg-libraries"
+
+_conf() {
+./configure --prefix=/usr --sysconfdir=/etc --disable-nls
+}
+
+_postin() {
+cat > $D/${PN}.sh << "EOSH"
+pango-querymodules --update-cache
+EOSH
+rm -r $D/usr/share/gtk-doc
+}

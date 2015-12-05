@@ -1,0 +1,20 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+_patch() { 
+sed -i -e 's#AM_CONFIG_HEADER#AC_CONFIG_HEADERS#' \
+ -e 's#AC_PROG_RANLIB#AC_LIBTOOL_DLOPEN\nAC_PROG_LIBTOOL#' \
+ configure.ac ||fail sed-configure.ac
+sed -i 's#b_L#b_LTL#;s#\.a#.la#g;s#_a_#_la_#' src/Makefile.am ||fail sed-ltl
+sed -i 's#\.a#.so#g;s#\.\./src/#../src/.libs/#g' tests/Makefile.am ||fail sed-test
+sed -i 's#pkgdata#doc#' doc/Makefile.am ||fail sed-doc
+autoreconf -fi ||fail autoreconf
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --docdir=/usr/share/doc/$PN \
+  --disable-static
+}

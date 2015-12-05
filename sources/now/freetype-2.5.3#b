@@ -1,0 +1,22 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+dep="zlib pkg-config"
+adep="bzip2 harfbuzz libpng libX11 libXau libXdmcp"
+
+_patch() {
+#patch -Np1 -i $sD/${PN}-ftoption-smooth.diff ||fail
+sed -i  -e "/AUX.*.gxvalid/s@^# @@" \
+ -e "/AUX.*.otvalid/s@^# @@" \
+ modules.cfg ||fail sed-aux
+sed -ri -e 's:.*(#.*SUBPIXEL.*) .*:\1:' \
+ include/config/ftoption.h ||fail sed-subp
+}
+
+_conf() {
+./configure --prefix=/usr --disable-static
+}
+
+#install -v -m755 -d /usr/share/doc/${PN}
+#cp -v -R docs/*     /usr/share/doc/${PN}

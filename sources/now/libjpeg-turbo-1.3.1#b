@@ -1,0 +1,18 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+adep="nasm yasm"
+
+_patch() { 
+sed -i -e "/^docdir/     s:$:/${PN}:" \
+  -e "/^exampledir/ s:$:/${PN}:" Makefile.in ||fail sed
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --mandir=/usr/share/man \
+  --with-jpeg8 \
+  --disable-static
+}

@@ -1,0 +1,46 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _conf _check _postin _makepkg
+
+adep="yasm nasm wxGTK kdelibs"
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN/-/_} $rD/$PN
+}
+
+_patch() {
+sed -i -e 's/chmod 555/chmod 755/' -e 's/chmod 444/chmod 644/' \
+ install.sh ||fail sed-chmod
+patch -Np1 -i $sD/${PN}-execstack.patch ||fail execstack
+patch -Np0 -i $sD/${PN}-QA.patch ||fail QA
+sed -e 's:-m32 ::g' \
+ -e 's:-m64 ::g' \
+ -e 's:-O::g' \
+ -e 's:-pipe::g' \
+ -e "/^CC/s:\$(ALLFLAGS):${CFLAGS} \$(ALLFLAGS):g" \
+ -e "/^CXX/s:\$(ALLFLAGS):${CXXFLAGS} \$(ALLFLAGS):g" \
+ -i makefile* ||fail sed-makefile
+case $(uname -m) in
+  x86_64) cp -f makefile.linux_amd64_asm makefile.machine ||fail cp-makefile-64 ;;
+  *) cp -f makefile.linux_x86_asm_gcc_4.X makefile.machine ||fail cp-makefile-32 ;;
+esac
+}
+
+_build() {
+#CFLAGS='-O2 -march=native -pipe -fomit-frame-pointer'
+#make all3 OPTFLAGS="$CFLAGS" ||fail
+make all3 ||fail build
+}
+
+#_check() {
+#make -k test test_7z test_7zr
+#}
+
+_destin() {
+make DEST_HOME=/usr \
+  DEST_MAN=/usr/share/man \
+  DEST_SHARE_DOC=/usr/share/doc/$PN \
+  DEST_DIR=$D install ||fail destinst
+  #OPTFLAGS="$CFLAGS" \
+}

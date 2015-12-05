@@ -1,0 +1,28 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+adep="libjpeg-turbo tiff librsvg"
+
+#_patch() {
+#sed -i -e 's/AC_CXX_OPTIMIZE/OPTS=;AC_SUBST(OPTS)/' \
+# configure.ac #config/acinclude.m4 ||fail sed-conf #263688
+#rm aclocal.m4 \
+# config/{libtool.m4,ltmain.sh,install-sh,config.sub,config.guess,ltoptions.m4,ltversion.m4,lt~obsolete.m4}
+#patch $sD/djvulibre-3.5.24-gcc46.patch
+#AT_M4DIR="config" autoreconf ||fail areconf
+#aclocal
+#automake --add-missing
+#autoreconf ||fail autoreconf
+#libtoolize
+#}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-desktopfiles
+}
+
+_postin() {
+rm -rf $D/usr/share/djvu/osi/{cs,de,fr,ja,zh}
+}

@@ -1,0 +1,12 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check _install _postin
+unset _patch _check _postin
+
+_conf() {
+sh Configure -des -Dprefix=/tools -Dlibs=-lm -Doptimize="$CFLAGS"
+}
+
+_install() {
+cp -v perl cpan/podlators/pod2man /tools/bin ||fail install-perl
+mkdir -pv /tools/lib/perl5/${PN/perl-}
+cp -Rv lib/* /tools/lib/perl5/${PN/perl-} ||fail install-libs
+}

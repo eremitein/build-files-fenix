@@ -1,0 +1,13 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _conf _check _postin _makepkg
+
+dep=""
+adep=""
+
+_destin() {
+mkdir -pv $D/usr/{bin,share/doc/$PN}
+cp -v psf2txt txt2psf $D/usr/bin ||fail cp-bin
+cp -v COPYING ChangeLog demo* readme.txt \
+ $D/usr/share/doc/$PN ||fail cp-doc
+}

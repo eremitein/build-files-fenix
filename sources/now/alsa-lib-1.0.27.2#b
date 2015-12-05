@@ -1,0 +1,23 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+adep="doxygen python"
+
+_patch() {
+find . -name Makefile.am -exec sed -i '/CFLAGS/s:-g -O2::' {} + ||fail flags
+#autoreconf
+}
+
+_conf() {
+./configure \
+  --disable-maintainer-mode \
+  --disable-dependency-tracking \
+  --disable-silent-rules \
+  --disable-resmgr \
+  --enable-rawmidi \
+  --enable-seq \
+  --enable-aload \
+  --disable-python \
+  --without-debug
+}

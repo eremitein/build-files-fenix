@@ -1,0 +1,29 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+_patch() {
+echo '#define PATH_PROCNET_DEV "/proc/net/dev"' \
+ >> ifconfig/system/linux.h
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --libexecdir=/usr/sbin \
+  --localstatedir=/var \
+  --disable-{servers,logger,syslogd}
+}
+
+#_destin() {
+#make DESTDIR=$D SUIDMODE="-o root -m 755" \
+#     install ||fail destinst
+#}
+
+_postin() {
+mkdir -pv $D/{,s}bin
+mv -v $D/usr/bin/{hostname,ping,ping6} $D/bin ||fail mv-bin
+mv -v $D/usr/bin/{ifconfig,traceroute} $D/sbin ||fail mv-sbin
+#chmod -v -s $D/bin/ping*
+#setcap -v cap_net_raw=ep $D/bin/ping*
+}

@@ -1,0 +1,40 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+_patch() {
+sed -i -e 's|/@pkg_name@|&-@pkg_version@|' include/builddefs.in \
+ ||fail sed-builddefs
+sed -i "s:| sed.*::g" test/{sbits-restore,cp,misc}.test ||fail sed-test
+sed -i -e "/TABS-1;/a if (x > (TABS-1)) x = (TABS-1);" \
+ libacl/__acl_to_any_text.c ||fail sed-libacl
+
+export DEBUG=-DNDEBUG
+export OPTIMIZER=$CFLAGS
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --bindir=/bin \
+  --disable-gettext \
+  --libexecdir=/usr/lib
+}
+
+#_check() {
+# The Acl tests need to be run on a filesystem that supports
+# access controls after Coreutils has been built with the Acl libraries
+#make -j1 tests
+#}
+
+_destin() {
+make DIST_ROOT=$D install install-dev install-lib
+}
+
+_postin() {
+mkdir -pv $D/lib
+chmod -v 755 $D/usr/lib/libacl.so
+mv -v $D/usr/lib/libacl.so.* $D/lib
+ln -sfv ../../lib/$(readlink $D/usr/lib/libacl.so) $D/usr/lib/libacl.so \
+ ||fail ln
+}

@@ -1,0 +1,26 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+adep="giflib libpng jpeg"
+
+_patch() {
+patch -Np0 -i $sD/oob-segfault-${PN}.diff ||fail oob-segfault
+patch -Np0 -i $sD/${PN}-libpng15.patch ||fail libpng15 
+patch -Np1 -i $sD/${PN}-cc.patch ||fail cc
+sed -i -e 's:-lungif:-lgif:g' configure Makefile ||fail sed-lgif
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --mandir=/usr/share/man \
+  --infodir=/usr/share/info \
+  --without-bmp 
+  #--without-libungif
+}
+
+_build() {
+make CFLAGS="${CFLAGS}"
+mkdir -pv $D/usr/{bin,share/man/man1} ||fail mkdir
+}

@@ -1,0 +1,27 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _patch _postin _makepkg
+
+_conf() {
+ABI=32 \
+./configure \
+  --prefix=/usr \
+  --enable-cxx \
+  --docdir=/usr/share/doc/$PN
+}
+
+#_check() {
+#make check &> $sD/${PN}-check.log
+#echo '
+#******************************************************
+#[!] Ensure that all 185 tests in the test suite passed
+#******************************************************
+#'
+#awk '/tests passed/{total+=$2} ; END{print total}' $sD/${PN}-check.log
+#}
+
+#_postin() {
+#mkdir -pv $D/usr/share/doc/$PN
+#cp -v doc/{isa_abi_headache,configuration} doc/*.html \
+#  $D/usr/share/doc/$PN
+#}

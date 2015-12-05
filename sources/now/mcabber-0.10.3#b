@@ -1,0 +1,27 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="pkgconfig glib ncurses loudmouth"
+adep="gpgme libotr aspell libidn enchant"
+
+_patch() {
+patch -Np2 -i $sD/${PN}-vim-ftdetect.patch ||fail
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-dependency-tracking \
+  --disable-static
+}
+
+_postin() {
+mkdir -pv $D/usr/share/doc
+mv -v $D/usr/share/mcabber $D/usr/share/doc/$PN
+for dir in cs de fr it nl pl ru uk; do
+  rm -rv $D/usr/share/doc/$PN/help/$dir
+done
+cp -v mcabberrc.example $D/usr/share/doc/$PN ||fail cp_cfg
+rm -v $D/usr/lib/mcabber/*.la
+}

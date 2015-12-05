@@ -1,0 +1,52 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN/.3/.2} $rD/$PN
+}
+
+_patch() {
+bzcat $sD/gcc-4.8.2-4.8.3.diff.bz2 |patch -Np1 ||fail 4.8.2-4.8.3
+case `uname -m` in
+  i?86) sed -i 's/^T_CFLAGS =$/& -fomit-frame-pointer/' gcc/Makefile.in ;;
+esac
+sed -i -e /autogen/d -e /check.sh/d fixincludes/Makefile.in \
+ ||fail sed-fixincludes
+mv -v libmudflap/testsuite/libmudflap.c++/pass41-frag.cxx{,.disable} \
+ ||fail mv-pass41
+}
+
+_conf() {
+mkdir -v ../${PN}-build
+cd ../${PN}-build
+
+SED=sed \
+../$PN/configure \
+  --prefix=/usr \
+  --enable-shared \
+  --enable-threads=posix \
+  --enable-__cxa_atexit \
+  --enable-clocale=gnu \
+  --enable-languages=c,c++ \
+  --disable-multilib \
+  --disable-bootstrap \
+  --with-system-zlib \
+  --disable-nls
+}
+
+#_check() {
+#ulimit -s 32768
+#make -k check &> $sD/${PN}-check.log
+#../${PN}/contrib/test_summary
+#}
+
+_postin() {
+mkdir -pv $D/lib
+ln -sfv ../../usr/bin/cpp $D/lib ||fail ln-cpp-lib
+ln -sfv gcc $D/usr/bin/cc ||fail ln-cc
+mkdir -pv $D/usr/share/gdb/auto-load/usr/lib
+mv -v $D/usr/lib/*gdb.py $D/usr/share/gdb/auto-load/usr/lib \
+ ||fail mv-gdb.py
+}

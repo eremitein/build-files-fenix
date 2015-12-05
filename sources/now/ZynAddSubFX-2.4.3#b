@@ -1,0 +1,40 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _conf _check _postin _makepkg
+
+dep="cmake fftw mxml pkg-config"
+adep="alsa-lib fltk jack-audio-connection-kit lash"
+
+_patch() {
+patch -Np1 -i $sD/ZynAddSubFX-2.4.1-docs.patch ||fail docs
+patch -Np1 -i $sD/${PN}-nofltk.patch ||fail nofltk 
+sed -e 's/lash-1.0/lash_disabled/' \
+ -e '/-g /d' \
+ -i src/CMakeLists.txt ||fail sed-lashdis
+}
+
+_build() {
+mkdir -pv ${PN}-build
+cd ${PN}-build
+cmake \
+ -DCMAKE_INSTALL_PREFIX=/usr \
+ -DGuiModule=fltk \
+ -DAlsaEnable=TRUE \
+ -DOssEnable=FALSE \
+ -DPaEnable=FALSE \
+ -DLashEnable=FALSE \
+ -DDssiEnable=FALSE \
+ -DLibloEnable=FALSE \
+ -DDefaultInput=alsa \
+ -DDefaultOutput=alsa \
+ .. ||fail cmake
+make
+}
+
+_postin() {
+cd $rD/$PN
+mkdir -pv $D/usr/share/{doc/,}zynaddsubfx
+cp -rv instruments/* $D/usr/share/zynaddsubfx
+cp -rv ChangeLog *.txt ZynAddSubFX.lsm \
+ $D/usr/share/doc/zynaddsubfx
+}

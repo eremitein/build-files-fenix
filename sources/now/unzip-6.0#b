@@ -1,0 +1,44 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _conf _build _check _makepkg
+
+adep="bzip2 libnatspec"
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN/-6./6} $rD/$PN
+}
+
+_patch() {
+patch -Np1 -i $sD/${PN}-no-exec-stack.patch ||fail
+#patch -Np1 -i $sD/${PN}-natspec.patch
+#sed -i \
+#  -e '/^CFLAGS/d' \
+#  -e '/CFLAGS/s:-O[0-9]\?:$(CFLAGS) $(CPPFLAGS):' \
+#  -e '/^STRIP/s:=.*:=true:' \
+#  -e 's:LF2 = -s:LF2 = :' \
+#  -e 's:LF = :LF = $(LDFLAGS) :' \
+#  -e 's:SL = :SL = $(LDFLAGS) :' \
+#  -e 's:FL = :FL = $(LDFLAGS) :' \
+#  -e 's:$(AS) :$(AS) $(ASFLAGS) :g' \
+#  unix/Makefile ||file "sed unix/Makefile"
+sed -i "/MANDIR =/s#)/#)/share/#" unix/Makefile ||fail sed-man
+}
+
+_destin() {
+DEFINES='-DACORN_FTYPE_NFS -DWILD_STOP_AT_DIR -DLARGE_FILE_SUPPORT \
+  -DUNICODE_SUPPORT -DUNICODE_WCHAR -DUTF8_MAYBE_NATIVE -DNO_LCHMOD \
+  -DDATE_FORMAT=DF_YMD -DUSE_BZIP2 -DNOMEMCPY -DNO_WORKING_ISPRINT'
+make -f unix/Makefile prefix=/usr \
+  D_USE_BZ2=-DUSE_BZIP2 L_BZ2=-lbz2 \
+  LF2="$LDFLAGS" CF="$CFLAGS $CPPFLAGS -I. $DEFINES" \
+  unzips
+make -f unix/Makefile prefix="$D"/usr install
+}
+
+_postin() {
+ln -sfv unzip $D/usr/bin/zipinfo
+mkdir -pv $D/usr/share/doc/$PN
+cp -v BUGS History* README ToDo WHERE \
+ $D/usr/share/doc/$PN
+}

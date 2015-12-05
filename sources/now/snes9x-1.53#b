@@ -1,0 +1,43 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="libX11 libXext xproto "
+adep="libpng gtk2+ xdg-utils SDL opengl libXv libXrandr alsa-lib
+ intltool pkg-config portaudio"
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN}-src $rD/$PN
+}
+
+_patch() {
+sed -i -e '/pedantic/d' {gtk,unix}/configure.ac ||fail sed-pedantic
+sed -i -e '75i#define OF(x) x' unzip/{un,}zip.h ||fail sed-unzip
+sed -i -e '22i#define OF(x) x' unzip/ioapi.h ||fail sed-ioapi
+patch -Np1 -i $sD/${PN}-build.patch ||fail
+}
+
+_conf() {
+cd gtk
+autoreconf
+
+LDFLAGS+="-Wl,-z,noexecstack" \
+./configure \
+  --prefix=/usr \
+  --bindir=/usr/bin \
+  --datadir=/usr/share \
+  --sysconfdir=/etc \
+  --libdir=/usr/lib \
+  --disable-dependency-tracking \
+  --with-netplay \
+  --without-portaudio \
+  --without-pulseaudio \
+  --without-hq2x
+#  --without-newblend \
+}
+
+_postin() {
+mkdir -pv $D/usr/share/doc/${PN}-gtk
+cp -rv doc/* ../doc/* $D/usr/share/doc/${PN}-gtk
+}

@@ -1,0 +1,17 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _conf _build _check _postin _cleanpkg _makepkg
+
+_unpack() {
+mkdir -pv $rD/$PN
+}
+
+_destin () {
+mkdir -pv $D/usr/bin
+cat > $D/usr/bin/which << "EOF"
+#!/bin/bash
+type -pa "$@" | head -n 1 ; exit ${PIPESTATUS[0]}
+EOF
+chmod -v 755 $D/usr/bin/which
+chown -v root:root $D/usr/bin/which
+}

@@ -1,0 +1,18 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _conf _check _postin _makepkg
+
+dep="scons python"
+adep="sphinx"
+
+_build() {
+scons -j2 --prefix=${D}/usr --actual-prefix=/usr ||fail
+}
+
+_destin() {
+scons --prefix=${D}/usr install --actual-prefix=/usr ||fail
+}
+
+_postin() {
+rm -r ${D}/usr/share/locale ||fail
+}

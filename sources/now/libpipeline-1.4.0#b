@@ -1,0 +1,8 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+_conf() {
+PKG_CONFIG_PATH=/tools/lib/pkgconfig \
+./configure --prefix=/usr
+}

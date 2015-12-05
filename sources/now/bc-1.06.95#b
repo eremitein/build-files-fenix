@@ -1,0 +1,19 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+_patch() {
+patch -Np1 -i $sD/${PN}-memory_leak-1.patch ||fail
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --with-readline \
+  --mandir=/usr/share/man \
+  --infodir=/usr/share/info
+}
+
+#_check() {
+#echo "quit" | ./bc/bc -l Test/checklib.b &> $sD/${PN}-check.log
+#}

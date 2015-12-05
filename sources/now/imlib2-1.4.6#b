@@ -1,0 +1,30 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="xorg-lib"
+adep="libpng libjpeg-turbo tiff giflib libid3tag"
+
+_patch() {
+## fix for giflib-5.XX
+#sed -e '/DGifOpen/s:fd:&, NULL:' \
+# -e '/DGifCloseFile/s:gif:&, NULL:' \
+# -i src/modules/loaders/loader_gif.c ||fail loader
+## gentoo
+#patch -Np1 -i $sD"/imlib2-1.4.5-no-my-libs.patch ||fail nomy #497894
+#patch -Np1 -i $sD"/imlib2-1.4.5-giflib-5.patch ||fail giflib5 #457634
+#patch -Np1 -i $sD"/${PN}-out-of-source-build.patch ||fail outof #510522
+#patch -Np1 -i $sD"/${PN}-no-x.patch ||fail nox
+#automake ||fail automake
+sed -i 's/@my_libs@//' imlib2-config.in ||fail imlib
+}
+
+_conf() {
+./configure --prefix=/usr --disable-static
+}
+
+_postin() {
+install -v -m755 -d $D/usr/share/doc/$PN
+install -v -m644 doc/{*.gif,index.html} \
+ $D/usr/share/doc/$PN
+}

@@ -1,0 +1,29 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+PNV="${PN/sqlite-/}"
+PN="sqlite-autoconf-`printf "%u%02u%02u%02u" ${PNV//./ }`"
+
+adep="icu readline tcl unzip"
+
+_patch() {
+patch -Np0 -i $sD/sqlite-3.8.1-autoconf-dlopen_check.patch ||fail
+aclocal
+automake --add-missing
+autoreconf ||fail autoreconf
+libtoolize
+}
+
+_conf() {
+CFLAGS="$CFLAGS -DSQLITE_ENABLE_COLUMN_METADATA \
+ -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS \
+ -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_FTS4_UNICODE61 \
+ -DSQLITE_ENABLE_UNLOCK_NOTIFY -DNDEBUG \
+ -DSQLITE_ENABLE_RTREE -DSQLITE_SOUNDEX \
+ -DSQLITE_SECURE_DELETE -DSQLITE_CHECK_PAGES -DSQLITE_CORE" \
+./configure \
+  --prefix=/usr \
+  --enable-readline \
+  --disable-static
+}

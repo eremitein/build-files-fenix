@@ -1,0 +1,12 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _patch _postin _makepkg
+
+_conf() {
+./configure --prefix=/usr --docdir=/usr/share/doc/$PN
+}
+
+#_postin() {
+#make html
+#make DESTDIR=$D install-html
+#}

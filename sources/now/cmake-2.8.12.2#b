@@ -1,0 +1,14 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep="libarchive expat curl zlib pkg-config"
+adep="ncurses qt4 qt5 emacs"
+
+_conf() {
+./bootstrap \
+  --prefix=/usr \
+  --system-libs \
+  --datadir=/usr/share/cmake \
+  --parallel=$(echo $MAKEFLAGS |sed -e 's/-j//')
+}

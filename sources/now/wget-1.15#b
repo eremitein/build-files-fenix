@@ -1,0 +1,31 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep="pkgconfig xz"
+adep="libidn pcre gnutls openssl util-linux zlib gettext"
+
+#_patch() {
+#patch -Np1 -i $sD/wget-1.13.4-openssl-pkg-config.patch ||fail
+##conflict with aclocal-1.13
+#}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --disable-debug \
+  --disable-nls \
+  --disable-rpath \
+  --with-ssl=openssl
+}
+
+_postin() {
+sed -i -e "s:/usr/local/etc:/etc:g" \
+  $D/etc/wgetrc \
+  $D/usr/share/man/man1/wget.1 \
+  $D/usr/share/info/wget.info ||fail sed
+sed -i -e "s:some prefix other than:some prefix like:" \
+  -e "s:if Wget was not installed there:if Wget was installed there:" \
+  $D/usr/share/info/wget.info ||fail sed-info
+}

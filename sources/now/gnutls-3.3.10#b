@@ -1,0 +1,30 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="libtasn1 nettle gmp autogen"
+adep="libidn unbound guile libintl p11-kit zlib"
+
+_patch() {
+sed -i -e 's/imagesdir = $(infodir)/imagesdir = $(htmldir)/' \
+ doc/Makefile.am ||fail sed-imagesdir 
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --docdir=/usr/share/doc/$PN \
+  --disable-valgrind-tests \
+  --without-included-libtasn1 \
+  --enable-heartbeat-support \
+  --without-tpm \
+  --disable-nls \
+  --disable-static \
+  --disable-guile \
+  --with-default-trust-store-file=/etc/ssl/ca-bundle.crt \
+  --with-unbound-root-key-file=/etc/dnssec/root-anchors.txt
+}
+
+_postin() {
+_doc doc/{gnutls.html,examples}
+}

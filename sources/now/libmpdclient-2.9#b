@@ -1,0 +1,20 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+_patch() {
+sed -e "s:@top_srcdir@:.:" -i doc/doxygen.conf.in ||fail
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib \
+  --mandir=/usr/share/man \
+  --disable-dependency-tracking \
+  --disable-documentation
+}
+
+_postin() {
+find $D -name "*.la" -exec rm -rf {} + || fail "delete .la files"
+}

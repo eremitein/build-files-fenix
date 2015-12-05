@@ -1,0 +1,21 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="fontconfig"
+adep="cairo libjpeg-turbo libpng curl gobject-introspection gtk2+ libtiff openjpeg qt4 qt5"
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --disable-static \
+  --enable-xpdf-headers
+}
+
+_postin() {
+#tar -xf $sD/poppler-data-0.4.7.tar.gz
+#cd poppler-data-0.4.7
+#make prefix=$D/usr install ||fail poppler-data
+rm -r $D/usr/share/gtk-doc
+}

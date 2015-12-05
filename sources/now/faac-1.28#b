@@ -1,0 +1,12 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+_patch() {
+patch -Np1 -i $sD/${PN}-glibc_fixes-1.patch ||fail glibcfix
+sed -i -e '/obj-type/d' -e '/Long Term/d' frontend/main.c ||fail sed
+}
+
+_conf() {
+./configure --prefix=/usr --disable-static
+}

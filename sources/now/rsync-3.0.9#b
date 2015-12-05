@@ -1,0 +1,38 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="popt"
+adep="attr acl libiconv"
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --without-included-popt
+}
+
+_postin() {
+cat > $D/${PN}.sh << "EOSH"
+groupadd -g 48 rsyncd
+useradd -c "rsyncd Daemon" -d /home/rsync -g rsyncd \
+ -s /bin/false -u 48 rsyncd
+EOSH
+
+mkdir $D/etc
+cat > $D/etc/rsyncd.conf_sample << "EOF"
+# This is a basic rsync configuration file
+# It exports a single module without user authentication.
+
+motd file = /home/rsync/welcome.msg
+use chroot = yes
+
+[localhost]
+    path = /home/rsync
+    comment = Default rsync module
+    read only = yes
+    list = yes
+    uid = rsyncd
+    gid = rsyncd
+
+EOF
+}

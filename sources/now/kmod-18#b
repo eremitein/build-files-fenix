@@ -1,0 +1,22 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --bindir=/bin \
+  --sysconfdir=/etc \
+  --with-rootlibdir=/lib \
+  --with-xz \
+  --with-zlib
+}
+
+_postin() {
+mkdir -pv $D/sbin
+for target in depmod insmod modinfo modprobe rmmod; do
+  ln -sv ../bin/kmod $D/sbin/$target
+done
+
+ln -sv kmod $D/bin/lsmod
+}

@@ -1,0 +1,8 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _conf _build _check _destin _postin _cleanpkg _makepkg
+
+_unpack() {
+mkdir -pv $rD/$PN/PKG ||exit
+tar xf ${PN}.tgz -C $rD/$PN/PKG
+}

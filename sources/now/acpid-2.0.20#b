@@ -1,0 +1,37 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="linux-headers"
+
+_conf() {
+./configure --prefix=/usr --docdir=/usr/share/doc/$PN
+}
+
+_postin() {
+cp -r samples $D/usr/share/doc/$PN
+install -v -m755 -d $D/etc/acpi/events
+cp -v $sD/acpi_handler.sh $D/etc/acpi ||fail cp-acpi_handler.sh
+chmod -v +x $D/etc/acpi/acpi_handler.sh
+cat > $D/etc/acpi/events/default << "EOF"
+# This is the ACPID default configuration, it takes all
+# events and passes them to /etc/acpi/default.sh for further
+# processing.
+
+# event keeps a regular expression matching the event. To get
+# power events only, just use something like "event=button power.*"
+# to catch it.
+# action keeps the command to be executed after an event occurs
+# In case of the power event above, your entry may look this way:
+#event=button power.*
+#action=/sbin/init 0
+
+# Optionally you can specify the placeholder %e. It will pass
+# through the whole kernel event message to the program you've
+# specified.
+
+event=.*
+action=/etc/acpi/acpi_handler.sh %e
+
+EOF
+}

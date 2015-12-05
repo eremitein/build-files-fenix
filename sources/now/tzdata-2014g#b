@@ -1,0 +1,29 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _conf _build _check _postin _cleanpkg _makepkg
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN/-} $rD/$PN
+}
+
+_unpack() {
+mkdir -pv $rD/$PN
+tar xf $sD/${PN}*.tar.* -C $rD/$PN ||fail unpack
+}
+
+_destin() {
+ZONEINFO=$D/usr/share/zoneinfo
+mkdir -pv $ZONEINFO/{posix,right}
+
+for tz in etcetera southamerica northamerica europe africa antarctica \
+  asia australasia backward pacificnew systemv; do
+    zic -L /dev/null -d $ZONEINFO -y "sh yearistype.sh" ${tz}
+    zic -L /dev/null -d $ZONEINFO/posix -y "sh yearistype.sh" ${tz}
+    zic -L leapseconds -d $ZONEINFO/right -y "sh yearistype.sh" ${tz}
+done
+
+cp -v zone.tab zone1970.tab iso3166.tab $ZONEINFO
+zic -d $ZONEINFO -p America/New_York
+unset ZONEINFO _doc
+}

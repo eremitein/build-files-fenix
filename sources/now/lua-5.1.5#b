@@ -1,0 +1,38 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _conf _check _postin _makepkg
+
+dep="libtool"
+adep="readline"
+
+_patch() { 
+patch -Np1 -i $sD/lua-crux.diff ||fail lua
+patch -Np1 -i $sD/lua-5.1.5-cflags-crux.diff ||fail lua-5.1
+#sed -e 's|llua|llua5.1|' \
+#  -e 's|/include|/include/lua5.1|' \
+#  -i etc/lua.pc ||fail sed-lua.pc
+#sed -r -e '/^LUA_(SO|A|T)=/ s/lua/lua5.1/' \
+#  -e '/^LUAC_T=/ s/luac/luac5.1/' \
+#  -i src/Makefile ||fail sed-Makefile
+}
+
+_build() {
+make MYCFLAGS="$CFLAGS -fPIC" MYLDFLAGS="$LDFLAGS" linux ||fail build
+}
+
+_destin() {
+mkdir -pv $D/usr/{lib,include/lua,share/man/man1} ||fail mkdir
+make \
+ TO_LIB="liblua.so liblua.so.5.1 liblua.so.5.1.5" \
+ INSTALL_DATA='cp -d' \
+ INSTALL_TOP="$D/usr" \
+ INSTALL_INC="$D/usr/include/lua" \
+ INSTALL_MAN="$D/usr/share/man/man1" \
+ install ||fail destinst
+
+install -m 0644 -D etc/lua.pc $D/usr/lib/pkgconfig/lua.pc \
+ ||fail install-lua.pc
+
+mkdir -pv $D/usr/share/doc/$PN
+cp -v doc/*.{html,css,gif,png} $D/usr/share/doc/$PN
+}

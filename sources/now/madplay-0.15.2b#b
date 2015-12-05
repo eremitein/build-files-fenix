@@ -1,0 +1,18 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+_patch() {
+zcat $sD/${PN}-fix-segfault.patch.gz |patch -p1 ||fail
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --with-alsa \
+  --without-esd \
+  --disable-debugging \
+  --disable-nls \
+  --disable-dependency-tracking
+  #--disable-mmap \
+}

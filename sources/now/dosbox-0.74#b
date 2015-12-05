@@ -1,0 +1,27 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="libpng SDL"
+adep="alsa Mesa ncurses X11"
+
+_patch() {
+patch -Np0 -i ${sD}/${PN}-gcc46.patch ||fail
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
+  --docdir=/usr/doc/${PN}
+}
+
+_postin() {
+#make install-strip DESTDIR=`pwd`/PKG
+install -D -m 0644 src/dosbox.ico ${D}/usr/share/pixmaps/dosbox.ico
+mkdir -pv ${D}/usr/doc/${PN}
+cp -rv AUTHORS COPYING ChangeLog INSTALL NEWS README THANKS \
+ docs/PORTING docs/README.video ${D}/usr/doc/${PN}
+}

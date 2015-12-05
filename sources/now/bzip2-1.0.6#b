@@ -1,0 +1,30 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _conf _check _makepkg
+
+_patch() {
+patch -Np1 -i $sD/${PN}-install_docs-1.patch ||fail
+sed -i -e 's@\(ln -s -f \)$(PREFIX)/bin/@\1@' \
+ -e "s@(PREFIX)/man@(PREFIX)/share/man@g" Makefile ||fail sed-PREFIX
+sed -i -e 's/CFLAGS=/CFLAGS+=/' -e 's/ -g//' Makefile* ||fail sed-CFLAGS
+}
+
+_build() {
+make -f Makefile-libbz2_so ||fail make-libbz2_so
+make clean
+make ||fail make
+}
+
+_destin() {
+make PREFIX=$D/usr install ||fail destinst
+}
+
+_postin() {
+mkdir -pv $D/{bin,lib}
+cp -v bzip2-shared $D/bin/bzip2
+cp -fav --remove-destination *libbz2.so* $D/lib
+ln -sfv ../../lib/libbz2.so.1.0 $D/usr/lib/libbz2.so ||fail ln-libbz2.so
+rm -v $D/usr/bin/{bunzip2,bzcat,bzip2}
+ln -sfv bzip2 $D/bin/bunzip2
+ln -sfv bzip2 $D/bin/bzcat
+}

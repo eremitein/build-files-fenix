@@ -1,0 +1,18 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check _install _postin
+unset _patch _check
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN/-} $rD/$PN
+}
+
+_conf() {
+cd unix
+./configure --prefix=/tools
+}
+
+_postin() {
+chmod -v u+w /tools/lib/libtcl8.6.so
+make install-private-headers ||fail install-headers
+ln -sfv tclsh8.6 /tools/bin/tclsh ||fail ln-tclsh
+}

@@ -1,0 +1,52 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _check _makepkg
+
+dep="pkgconfig glib"
+adep="libidn gnutls openssl libasyncns"
+
+_patch () {
+#patch -Np1 -i $sD/${PN}-asyncns-system.patch ||fail asyncns-system
+#patch -Np1 -i $sD/${PN}-gnutls28.patch ||fail gnutls28
+#patch -Np1 -i $sD/${PN}-fix-sasl-md5-digest-uri.patch ||fail fix-sasl
+#patch -Np1 -i $sD/${PN}-drop-stanzas-on-fail.patch ||fail drop-stanzas
+#patch -Np1 -i $sD/${PN}-async-fix.patch ||fail async-fix
+#patch -Np1 -i $sD/${PN}-id-tag-in-opening-headers.patch ||fail id-tag
+#patch -Np1 -i $sD/${PN}-silence-chdir.patch ||fail silence-chdir
+#patch -Np1 -i $sD/${PN}-free-before-closed.patch ||fail free-before
+#patch -Np1 -i $sD/${PN}-invalid-unicode.patch ||fail invalid-unicode
+#patch -Np1 -i $sD/${PN}-glib-2.32.patch ||fail glib-2.32
+#sed -i -e 's:AM_CONFIG_HEADER:AC_CONFIG_HEADERS:' \
+# configure.ac ||fail sed-configure.ac  #467694
+patch -Np1 -i $sD/01-fix-sasl-md5-digest-uri.patch ||fail fix-sasl
+patch -Np1 -i $sD/03-drop-stanzas-on-fail.patch ||fail drop-stanzas
+patch -Np1 -i $sD/04-use-pkg-config-for-gnutls.patch ||fail gnutls
+patch -Np1 -i $sD/07-glib-single-include.patch ||fail glib-single
+patch -Np1 -i $sD/08-fix-ipv6-connect.patch ||fail fix-ipv6
+patch -Np0 -i $sD/gnutls-3.4.0.patch ||fail gnutls
+rm docs/reference/Makefile.am
+libtoolize --force
+aclocal
+autoconf
+automake --add-missing ||fail automake
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-static \
+  --with-asyncns=yes \
+  --with-libgnutls-prefix=/usr \
+  --infodir=/usr/share/info \
+  --localstatedir=/var \
+  --without-check \
+  --enable-gtk-doc=no \
+  --disable-gtk-doc \
+  --enable-rebuilds=no \
+  --enable-debug=no \
+  --with-ssl=gnutls
+}
+
+_postinst() {
+rm -rv $D/usr/share/gtk-doc $D/usr/lib/*.la
+}

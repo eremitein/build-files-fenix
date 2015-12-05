@@ -1,0 +1,32 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+adep="gc expat bzip2 openssl zlib lzma lua libidn perl python"
+
+_patch() {
+patch -Np1 -i $sD/${PN}-off-link_title.patch ||fail off-link_title
+#patch -Np1 -i $sD/${PN}-compilation-fix.patch ||fail compilation-fix
+#patch -Np1 -i $sD/${PN}-lua-5.1.patch ||fail lua-5.1
+#patch -Np1 -i $sD/${PN}-parallel-make.patch ||fail parallel-make
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --without-gpm --disable-mouse \
+  --enable-html-highlight \
+  --enable-fastmem \
+  --without-lua \
+  --without-python \
+  --without-ruby \
+  --disable-marks \
+  --disable-leds \
+  --disable-nls
+}
+
+_postin() {
+mv -v $D/usr/bin/elinks{,-0.13} ||fail mv-elinks
+ln -sfv elinks-0.13 $D/usr/bin/elinks ||fail ln-elinks
+}

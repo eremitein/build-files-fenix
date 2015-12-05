@@ -1,0 +1,17 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-nls \
+  --localstatedir=/var/lib/locate
+}
+
+_postin() {
+mkdir -pv $D/bin
+mv -v $D/usr/bin/find $D/bin ||fail mv
+sed -i 's|find:=${BINDIR}|find:=/bin|' \
+ $D/usr/bin/updatedb ||fail sed-updatedb
+}

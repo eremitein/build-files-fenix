@@ -1,0 +1,16 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+FORCE_UNSAFE_CONFIGURE=1 \
+./configure \
+  --prefix=/usr \
+  --disable-nls \
+  --bindir=/bin \
+  --libexecdir=/usr/sbin
+}
+
+_postin() {
+make DESTDIR=$D docdir=/usr/share/doc/$PN -C doc install-html
+}

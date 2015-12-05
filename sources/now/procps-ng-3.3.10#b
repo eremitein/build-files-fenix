@@ -1,0 +1,28 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib \
+  --exec-prefix= \
+  --docdir=/usr/share/doc/$PN \
+  --disable-static \
+  --disable-kill \
+  --disable-skill \
+  --disable-nls \
+  --disable-dependency-tracking
+}
+
+#_check() {
+#sed -i -r 's|(pmap_initname)\\\$|\1|' testsuite/pmap.test/pmap.exp
+#make -k check
+#}
+
+_postin(){
+mkdir -vp $D/{bin,lib}
+mv -v $D/usr/bin/pidof $D/bin ||fail mv-bin
+mv -v $D/usr/lib/libprocps.so.* $D/lib ||fail mv-libs
+ln -sfv ../../lib/libprocps.so.4.0.0 $D/usr/lib/libprocps.so
+}

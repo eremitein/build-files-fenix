@@ -1,0 +1,15 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+_patch() {
+patch -Np1 -i $sD/${PN}-mp4ff-1.patch ||fail
+sed -i "s:AM_CONFIG_HEADER:AC_CONFIG_HEADERS:g" \
+ configure.in ||fail header
+sed -i "s:man_MANS:man1_MANS:g" frontend/Makefile.am ||fail man
+autoreconf -fi ||fail autoreconf
+}
+
+_conf() {
+./configure --prefix=/usr --disable-static
+}

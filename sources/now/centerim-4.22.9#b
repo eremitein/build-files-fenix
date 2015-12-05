@@ -1,0 +1,28 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+_patch() { 
+patch -Np1 -i $sD/${PN}-gcc46.patch ||fail
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --datadir=/usr/share \
+  --mandir=/usr/share/man \
+  --docdir=/usr/share/doc/$PN \
+  --disable-dependency-tracking \
+  --disable-yahoo \
+  --disable-aim \
+  --disable-gg \
+  --disable-msn \
+  --disable-lj
+}
+
+_postin() {
+mkdir -p $D/usr/share/doc/$PN
+cp -a AUTHORS COPYING ChangeLog FAQ README NEWS THANKS TODO POLICY \
+  $D/usr/share/doc/$PN ||fail "Share files"
+rm -r $D/usr/share/locale
+}

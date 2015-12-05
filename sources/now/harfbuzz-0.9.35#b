@@ -1,0 +1,13 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+adep="glib icu freetype cairo"
+
+_conf() {
+./configure --prefix=/usr --with-gobject
+}
+
+_postin() {
+rm -r $D/usr/share
+}

@@ -1,0 +1,39 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _checkin
+
+dep="ncurses bzip2 zlib pkg-config"
+adep="ffmpeg a52dec aalib alsa-lib fribidi libbluray libbs2b libcdio cdparanoia libXxf86dga  \
+DirectFB,libdca,libdv,linuxtv-dvb-headers,libdvdread,libdvdnav,toolame,twolame,faac,lame, \
+x264,xvid,enca,faad2,libggi,libggiwmh,giflib,gsm,libiconv,jack-audio-connection-kit,jpeg, \
+openjpeg,ladspa-sdk,libass,libcaca,libmpeg2,lirc,live,lzo,libmad,libmng,mpg123,nas,libnut, \
+openal,opengl,libpng,netpbm,unrar,rtmpdump,samba,libsdl,speex,libtheora,libvdpau,libvorbis, \
+xanim,libXinerama,libXScrnSaver,libXv,libXvMC,videoproto,xf86vidmodeproto,libXext,libXxf86vm, \
+fontconfig,freetype,scrnsaverproto,yasm"
+
+_patch() {
+#patch -Np1 -i $sD/${PN}-giflib_fixes-1.patch ||fail giflib_fixes
+patch -Np1 -i $sD/${PN}-live_fixes-1.patch ||fail live_fixes
+patch -Np0 -i $sD/${PN}-doublebuf-sdl-off.patch ||fail doublebuf-sdl-off
+sed -i 's:libsmbclient.h:samba-4.0/&:' \
+ configure stream/stream_smb.c ||fail sed-samba4
+#sed -i 's/EGifCloseFile(new_gif/&, NULL/' \
+# libvo/vo_gif89a.c ||fail sed-vo_gif89
+#sed -i 's/DGifCloseFile(priv->gif/&, NULL/' \
+# libmpdemux/demux_gif.c ||fail sed-demux_gif
+}
+
+_conf() {
+CFLAGS= \
+./configure \
+  --prefix=/usr \
+  --confdir=/etc/mplayer \
+  --enable-dynamic-plugins \
+  --enable-joystick --enable-menu \
+  --extra-cflags="-Wa,-mtune=amdfam10"
+}
+
+_postin() {
+mkdir -pv $D/etc/mplayer
+install -v -m644 etc/*.conf $D/etc/mplayer
+}

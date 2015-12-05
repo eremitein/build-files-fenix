@@ -1,0 +1,51 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _conf _build _check _postin _makepkg
+
+dep=""
+adep=""
+
+_unpack() {
+mkdir -pv $rD/$PN ||fail mkdir-${PN}
+tar xf ${PN}.tar.* -C $rD/$PN
+tar xf netcat-110-patches-1.0.tar* \
+ -C $rD/$PN ||fail tar-patch
+}
+
+_patch() {
+zcat $sD/nc-v6-20000918.patch.gz |patch -Np1 ||fail v6
+for ph in patch/* ; do
+  bzcat $ph |patch -N ||fail $ph
+done
+
+sed -i -e 's:#define FD_SETSIZE 16:#define FD_SETSIZE 1024:' \
+ -e 's:#define HAVE_BIND:#undef HAVE_BIND:' netcat.c ||fail sed
+}
+
+_destin() {
+#XLIBS=""
+#XFLAGS="-DLINUX -DTELNET -DGAPING_SECURITY_HOLE"
+#XFLAGS="${XFLAGS} -DINET6"
+#STATIC="-static"
+#XFLAGS="${XFLAGS} -DAESCRYPT" && XLIBS="${XLIBS} -lmix"
+export XFLAGS="-DLINUX -DTELNET -DGAPING_SECURITY_HOLE"
+make -e "CC=gcc ${CFLAGS} ${LDFLAGS}" nc ||fail make
+unset XFLAGS _doc
+
+#sed -i -e 's/res_init();/\/\* res_init(); \*\//' netcat.c ||exit
+#mv netcat.c netcat.c~
+#sed -e 's/res_init();/\/\* res_init(); \*\//' <netcat.c~ >netcat.c
+#mv Makefile Makefile~
+#sed -e 's/CFLAGS =/# CFLAGS =/' -e 's/\$(STATIC)//' <Makefile~ >Makefile
+#make linux
+
+#zcat $sD/nc-110-21.diff.gz | patch -p1  ||exit 1
+#zcat $sD/nc.diff.gz | patch -p1  ||exit 1
+#sed -i -e 's/CFLAGS =/# CFLAGS =/' -e 's/\$(STATIC)//' Makefile ||exit
+#make linux ||exit 1
+
+mkdir -pv $D/usr/{bin,share/{man/man1,doc/$PN}}
+cp -v nc $D/usr/bin ||fail cp-bin
+cp -av Changelog README* netcat.blurb debian-* scripts $D/usr/share/doc/$PN
+cp -v nc.1 $D/usr/share/man/man1 ||fail cp-man
+}

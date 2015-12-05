@@ -1,0 +1,13 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="glib"
+
+_conf() {
+./configure --prefix=/usr
+}
+
+_postin() {
+rm -r $D/usr/share
+}

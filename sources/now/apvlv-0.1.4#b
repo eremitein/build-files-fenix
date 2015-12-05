@@ -1,0 +1,33 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep="poppler gtk2+"
+adep="djvulibre"
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN}-Source $rD/$PN
+}
+
+_patch() {
+patch -Np1 -i $sD/${PN}-cmake.patch ||fail
+sed -i "s:Startup.tex::" CMakeLists.txt ||fail sed-tex
+##NOTE: djvu not working with info storing
+sed -i '/noinfo/s/=no/=yes/' apvlvrc.example ||fail noinfo
+}
+
+_conf() {
+mkdir -pv ${PN}-build
+cd ${PN}-build
+cmake \
+ -DCMAKE_INSTALL_PREFIX=/usr \
+ -DSYSCONFDIR=/etc/apvlv \
+ -DDOCDIR=/usr/share/apvlv \
+ -DMANDIR=/usr/share/man \
+ -DAPVLV_WITH_DJVU=ON \
+ -DAPVLV_WITH_HTML=OFF \
+ -DAPVLV_WITH_TXT=ON \
+ -DAPVLV_WITH_UMD=OFF \
+ .. ||fail cmake
+}

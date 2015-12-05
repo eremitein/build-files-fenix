@@ -1,0 +1,24 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+dep="bzip2 zlib libffi libintl pkg-config autoconf"
+adep="gdbm ncurses readline sqlite openssl tk tix expat"
+
+_patch() {
+rm -r Modules/expat ||fail rm-expat
+rm -r Modules/_ctypes/libffi*
+rm -r Modules/zlib
+sed -i -e 's@-g@@' -e 's@-O0@@' -e 's@-O3@@' configure ||fail sed-cflags
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --enable-shared \
+  --with-system-expat \
+  --with-system-ffi \
+  --enable-ipv6 \
+  --enable-unicode=ucs4  \
+  --with-fpectl
+}

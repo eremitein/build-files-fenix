@@ -1,0 +1,25 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-dependency-tracking \
+  --disable-nls \
+  --enable-lyrics-screen \
+  --enable-chat-screen
+}
+
+_postin() {
+make clean
+./configure \
+  --prefix=/usr \
+  --disable-dependency-tracking \
+  --disable-nls \
+  --enable-lyrics-screen \
+  --enable-chat-screen \
+  --enable-mini
+make ||fail "make mini"
+install -c src/ncmpc $D/usr/bin/ncmpc-mini
+}

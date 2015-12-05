@@ -1,0 +1,15 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep="libxml2"
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --enable-shared=yes \
+  --enable-static=no \
+  --disable-dependency-tracking \
+  --disable-lua
+}

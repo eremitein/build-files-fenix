@@ -1,0 +1,40 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+dep="openssl zlib cpio"
+adep="pcre perl tk curl expat emacs gnupg python asciidoc xmlto gettext"
+
+_patch() {
+patch -Np1 -i $sD/git-1.8.5-optional-cvs.patch ||fail optional-cvs
+patch -Np1 -i $sD/git-1.8.5-mw-destdir.patch ||fail mw-destdir
+patch -Np1 -i $sD/git-1.8.5-mw-vendor.patch ||fail mw-vendor
+sed -i -e '/private-Error.pm/s,^,#,' perl/Makefile.PL ||fail sed-error.pm
+sed -i \
+ -e '/$(INSTALL)/s/ $(libexecdir)/ $(DESTDIR)$(libexecdir)/g' \
+ -e '/$(INSTALL)/s/ $(man1dir)/ $(DESTDIR)$(man1dir)/g'  \
+  contrib/subtree/Makefile ||fail sed-missing
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --libexecdir=/usr/lib \
+  --with-gitconfig=/etc/gitconfig
+}
+
+_build() {
+make perl/PM.stamp ||fail make-PM.stamp
+make perl/perl.mak ||fail make-perl.mak
+make V=1
+}
+
+_postin() {
+find $D \( -name perllocal.pod -o -name .packlist \) -delete
+rm -rf $D/usr/share/{locale,gitk}
+mkdir -pv $D/usr/share/doc/$PN
+cp -vr Documentation/howto $D/usr/share/doc/$PN
+#cp -v Documentation/*.txt $D/usr/share/doc/$PN
+#tar -xf $sD/git-manpages-2.1.0.tar.xz -C $D/usr/share/man \
+#  --no-same-owner --no-overwrite-dir
+}

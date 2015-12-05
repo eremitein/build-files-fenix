@@ -1,0 +1,19 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="libpng glib pixman"
+adep="fontconfig xorg-libraries cogl DirectFB libdrm lzo MesaLib qt"
+
+_conf() {
+CFLAGS="$CFLAGS -ffat-lto-objects" \
+./configure \
+  --prefix=/usr \
+  --disable-static \
+  --disable-nls \
+  --enable-tee
+}
+
+_postin() {
+rm -r $D/usr/share
+}

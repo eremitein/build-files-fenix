@@ -1,0 +1,14 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+_conf() {
+./configure --prefix=/usr --bindir=/bin
+}
+
+_postin() {
+mkdir -pv $D/usr/bin
+mv -v $D/bin/{gzexe,uncompress} $D/usr/bin ||fail mv-bin
+mv -v $D/bin/z{fgrep,egrep,cmp,diff,force,grep,less,more,new} \
+ $D/usr/bin ||fail mv-bin-second
+}

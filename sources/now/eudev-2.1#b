@@ -1,0 +1,51 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+_unpack() {
+tar xf $sD/${PN}.tar.* -C $rD ||fail unpack
+}
+
+_patch() {
+sed -r -i 's|/usr(/bin/test)|\1|' test/udev-test.pl ||fail sed
+}
+
+_conf() {
+BLKID_CFLAGS=-I/tools/include \
+BLKID_LIBS='-L/tools/lib -lblkid' \
+./configure \
+  --prefix=/usr \
+  --bindir=/sbin \
+  --sbindir=/sbin \
+  --libdir=/usr/lib \
+  --sysconfdir=/etc \
+  --libexecdir=/lib \
+  --with-rootprefix= \
+  --with-rootlibdir=/lib \
+  --enable-split-usr \
+  --enable-libkmod \
+  --enable-rule_generator \
+  --disable-keymap \
+  --disable-introspection \
+  --disable-gudev \
+  --disable-gtk-doc-html \
+  --with-firmware-path=/lib/firmware
+}
+
+_destin() {
+mkdir -pv $D/lib/{firmware,udev}
+mkdir -pv $D/lib/udev/rules.d
+mkdir -pv $D/etc/udev/rules.d
+make DESTDIR=$D install ||fail destinst
+}
+
+_postin() {
+mkdir -pv $D/usr/share
+tar -xvf $sD/${PN}-manpages.t* -C $D/usr/share
+#tar -xvf $sD/udev-lfs-20140408.tar.*
+#make -f udev-lfs-20140408/Makefile.lfs DESTDIR=$D \
+# install ||fail udev-lfs
+cat > $D/${PN}.sh << "EOSH"
+udevadm hwdb --update
+EOSH
+}

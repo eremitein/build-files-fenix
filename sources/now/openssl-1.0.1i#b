@@ -1,0 +1,52 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _postin _makepkg
+
+dep="diffutils perl"
+adep="bc gmp zlib ca-certificates"
+
+_patch () {
+patch -Np1 -i $sD/${PN}-fix_parallel_build-1.patch ||fail fix_parallel_build
+#epatch "${FILESDIR}"/${PN}-1.0.0a-ldflags.patch #327421
+#epatch "${FILESDIR}"/${PN}-1.0.0d-windres.patch #373743
+#epatch "${FILESDIR}"/${PN}-1.0.0h-pkg-config.patch
+#epatch "${FILESDIR}"/${PN}-1.0.1-parallel-build.patch
+#epatch "${FILESDIR}"/${PN}-1.0.1-x32.patch
+#epatch "${FILESDIR}"/${PN}-1.0.1h-ipv6.patch
+#epatch "${FILESDIR}"/${PN}-1.0.1e-s_client-verify.patch #472584
+#epatch "${FILESDIR}"/${PN}-1.0.1f-revert-alpha-perl-generation.patch #499086
+#sed -i \
+# -e '/DIRS/s: fips : :g' \
+# -e '/^MAKEDEPPROG/s:=.*:=$(CC):' \
+# Makefile.org ||fail sed-Makefile.org
+# show the actual commands in the log
+sed -i '/^SET_X/s:=.*:=set -x:' Makefile.shared ||fail sed-actuallog
+}
+
+_conf() {
+#export CFLAGS='-O2 -march=amdfam10 -msse2 -mfpmath=sse -Wa,-mtune=amdfam10 -Wl,-O1 -pipe -fomit-frame-pointer'
+./config \
+  --prefix=/usr \
+  --openssldir=/etc/ssl \
+  shared zlib-dynamic
+
+sed -i 's@-O3@${CFLAGS}@' Makefile ||fail sed-CFLAGS
+}
+
+_check() {
+make -k test
+}
+
+_destin() {
+# If you want to disable installing the static libraries, use this sed:
+sed -i 's# libcrypto.a##;s# libssl.a##' Makefile ||fail sed-static
+
+make MANDIR=/usr/share/man MANSUFFIX=ssl INSTALL_PREFIX=$D \
+ install ||fail destinst
+}
+
+_postin() {
+find $D -name "*fips*" -delete
+install -dv -m755 $D/usr/share/doc/$PN
+cp -vfr doc/* $D/usr/share/doc/$PN
+}

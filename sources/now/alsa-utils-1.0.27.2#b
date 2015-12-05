@@ -1,0 +1,19 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep="alsa-lib"
+adep="libsamplerate xmlto dialog"
+
+_conf() {
+./configure \
+  --disable-maintainer-mode \
+  --disable-dependency-tracking \
+  --disable-alsaconf \
+  --disable-nls \
+  --disable-xmlto
+}
+
+_postin() {
+touch $D/var/lib/alsa/asound.state
+}

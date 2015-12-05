@@ -1,0 +1,61 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _conf _build _check _postin _cleanpkg _makepkg
+
+_destin() {
+services="
+service-dhclient
+service-dhcpcd
+service-ipx
+service-pppoe
+atd
+acpid
+alsa
+avahi
+httpd
+php
+bind
+bluetooth
+cups
+saslauthd
+dhcpd
+dovecot
+exim
+fcron
+gdm
+gpm
+heimdal
+iptables
+krb5
+lprng
+mysql
+netfs
+networkmanager
+nfs-client
+nfs-server
+ntpd
+slapd
+postfix
+postgresql
+proftpd
+random
+rsync
+samba
+sendmail
+soprano
+sshd
+stunnel
+svn
+sysstat
+vsftpd
+unbound
+virtuoso
+winbindd
+xinetd
+"
+
+for target in $services; do
+  echo install-${target}
+  make DESTDIR=$D install-${target}
+done
+}

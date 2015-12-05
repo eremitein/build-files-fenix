@@ -1,0 +1,60 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="nasm libsdl zlib"
+adep="libao ncurses opengl libpng"
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN/-1.51/_1_51/} $rD/$PN ||fail unpack-mv
+}
+
+_patch() {
+cd src
+
+patch -Np0 -i $sD/${PN}-libpng.patch ||fail
+patch -Np0 -i $sD/${PN}-archopt-july-23-update.patch
+patch -Np1 -i $sD/${PN}-gcc43.patch
+patch -Np0 -i $sD/${PN}-libao-thread.patch ||fail libao
+patch -Np1 -i $sD/${PN}-depbuild.patch ||fail depbuild
+patch -Np1 -i $sD/${PN}-CC-quotes.patch ||fail quotes
+patch -Np1 -i $sD/${PN}-libpng15.patch ||fail libpng15
+patch -Np2 -i $sD/${PN}-buffer.patch ||fail buffer
+patch -Np2 -i $sD/${PN}-gcc47.patch ||fail gcc47
+patch -Np2 -i $sD/${PN}-cross-compile.patch ||fail cross-compile
+
+patch -Np2 -i $sD/${PN}-doublebuf-sdl-off.patch ||fail doublebuf-sdl-off
+sed -i -e '67i#define OF(x) x' zip/zunzip.h ||fail "sed zunzip.h"
+
+# remove hardcoded CFLAGS and LDFLAGS
+sed -i \
+    -e '/^CFLAGS=.*local/s:-pipe.*:-Wall -I.":' \
+    -e '/^LDFLAGS=.*local/d' \
+    -e '/\w*CFLAGS=.*fomit/s:-O3.*$STRIP::' \
+     configure.in ||fail sed1-flags
+sed -i -e 's@ -O1@ -Ox@g' -e 's/O99999999/Ox/g' configure* ||fail sed2-flags
+sed -i 's@ -O1@@g' Makefile* ||fail sed3-flags
+autoreconf ||fail autoreconf
+}
+
+_conf() {
+case $(uname -m) in
+  x86_64) export CC="gcc -m32"
+          export CXX="g++ -m32"
+  ;;
+esac
+
+CFLAGS+="${CFLAGS} -U_FORTIFY_SOURCE" \
+./configure \
+  --prefix=/usr x_libraries=/usr/lib \
+  --disable-debug --disable-debugger \
+  --disable-sdltest --disable-cpucheck \
+  --enable-release force_arch=i686
+}
+
+_postin() {
+install -dm755 $D/usr/share
+#install -Dm644 $sD/zsnes.desktop $D/usr/share/applications/zsnes.desktop
+#install -Dm644 $sD/zsnes.png $D/usr/share/pixmaps/zsnes.png
+}

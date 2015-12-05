@@ -1,0 +1,127 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _conf _check _postin _makepkg
+
+adep="openssl"
+
+_patch() {
+patch -Np1 -i $sD/${PN}-debian.patch ||fail debian
+patch -Np0 -i $sD/${PN}-openssl-1.patch ||fail openssl
+sed -i -e '/STRIP/d' Makefile ||fail sed-stripdel
+}
+
+_build() {
+make -j1 config.h LIBS ||fail make-j1
+make CPPFLAGS="${CPPFLAGS} -D_GNU_SOURCE" \
+  PREFIX=/usr SYSCONFDIR=/etc \
+  SENDMAIL="/usr/sbin/sendmail" \
+  MAILSPOOL="/var/spool/mail" ||fail build
+}
+
+_destin() {
+make DESTDIR="$D" UCBINSTALL=$(type -p install) \
+  PREFIX=/usr SYSCONFDIR=/etc install ||fail destinst
+}
+
+_postin() {
+mkdir -pv $D/{bin,usr/share/doc/$PN} ||fail mkdir
+mv -v $D/{usr/,}bin/mailx ||fail mv-bin
+#ln -svf /bin/mailx $D/usr/bin/mailx
+ln -svf mailx $D/bin/mail
+ln -svf mailx $D/bin/Mail
+ln -svf mailx $D/bin/nail
+ln -svf mailx.1 $D/usr/share/man/man1/mail.1 ||fail ln-mail
+ln -svf mailx.1 $D/usr/share/man/man1/Mail.1 ||fail ln-Mail
+ln -svf mailx.1 $D/usr/share/man/man1/nail.1 ||fail ln-nail
+install -v -m644 AUTHORS README $D/usr/share/doc/$PN
+
+cat > $D/usr/share/doc/$PN/mailrc.example << "EOF"
+#set ttycharset=utf-8
+#set sendcharsets=utf-8
+set reply-in-same-charset
+set imap-keepalive=240
+set ssl-verify=warn
+set sendwait
+set askcc
+set headline="%>%a %m  %27f  %24d %4l/%-5o %i%S"
+# Reading HTML mail
+set pipe-text/html="lynx -dump -force_html -stdin"
+#set pipe-text/html="html2txt.sed -"
+#set pipe-text/html="links -dump /dev/stdin"
+#set pipe-text/html="elinks -dump -dump-charset windows-1251 /dev/stdin"
+#set pipe-text/html="lynx -dump -assume_charset=utf8 -display_charset=utf-8 -stdin"
+
+#set imap-use-starttls
+#set smtp-use-starttls
+## signing from my side
+#set smime-sign-cert-myname@myisp.example=cert.pem
+#set smime-sign
+## to other side's sign append (verif & certsave filename)
+#set smime-encrypt-user@host=filename
+#set emptystart
+#set emptybox
+#set editheaders
+#set askatend
+#set verbose
+
+account Yandex {
+set folder=imaps://yandex@imap.yandex.ru
+set record=+&BB4EQgQ,BEAEMAQyBDsENQQ9BD0ESwQ1-
+set record-resent=+&BB4EQgQ,BEAEMAQyBDsENQQ9BD0ESwQ1- MBOX=+MBOX outfolder
+shortcut in +INBOX
+shortcut sent +&BB4EQgQ,BEAEMAQyBDsENQQ9BD0ESwQ1-
+shortcut draft +&BCcENQRABD0EPgQyBDgEOgQ4-
+shortcut spam +&BCEEPwQwBDw-
+shortcut trash +&BCMENAQwBDsENQQ9BD0ESwQ1-
+set from="yandex@yandex.ru (yandex)"
+set smtp=smtp.yandex.ru
+set smtp-use-starttls
+set smtp-auth-user=yandex@yandex.ru
+set imap-cache=~/mail/yandex
+}
+account GMail {
+set folder=imaps://gmail@imap.gmail.com
+set record=+[Gmail]/Sent\ Mail
+set record-resent=+[Gmail]/Sent\ Mail MBOX=+MBOX outfolder
+shortcut in +INBOX
+shortcut sent +[Gmail]/Sent\ Mail
+shortcut spam +[Gmail]/Spam
+shortcut draft +[Gmail]/Drafts
+shortcut star +[Gmail]/Starred
+shortcut all +[Gmail]/All\ Mail
+shortcut trash +[Gmail]/Trash
+set from="gmail@gmail.com (gmail)"
+set smtp=smtp.gmail.com
+set smtp-use-starttls
+set smtp-auth-user=gmail@gmail.com
+set imap-cache=~/mail/gmail
+}
+account Yahoo {
+set folder=imaps://eremiteinvoid@imap.mail.yahoo.com
+set record=+Sent record-resent=+Sent MBOX=+MBOX outfolder
+set from="yahoo@yahoo.com (yahoo)"
+set smtp=smtp.mail.yahoo.com
+set smtp-use-starttls
+set smtp-auth-user=yahoo@yahoo.com
+set imap-cache=~/mail/yahoo
+}
+account Rambler {
+set folder=imaps://rambler@mail.rambler.ru
+set record=+Sent record-resent=+Sent MBOX=+MBOX outfolder
+set from="rambler@rambler.ru (rambler)"
+set smtp=mail.rambler.ru
+set smtp-use-starttls
+set smtp-auth-user=rambler@rambler.ru
+set imap-cache=~/mail/rambler
+}
+account Mailru {
+set folder=imaps://mailru@mail.ru@imap.mail.ru
+set record=+Sent record-resent=+Sent MBOX=+MBOX outfolder
+set from="mailru@mail.ru (mailru)"
+set smtp=smtp.mail.ru
+set smtp-use-starttls
+set smtp-auth-user=mailru@mail.ru
+set imap-cache=~/mail/mailru
+}
+EOF
+}

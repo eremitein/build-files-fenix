@@ -1,0 +1,21 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="libsdl libarchive"
+adep="opengl nasm"
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --disable-dependency-tracking
+
+make -C musa m68kops.h ||fail musa
+}
+
+_postin() {
+mkdir -pv $D/usr/share/doc/$PN
+cp -v AUTHORS BUGS ChangeLog COPYING README sample.dgenrc \
+ $D/usr/share/doc/$PN
+}

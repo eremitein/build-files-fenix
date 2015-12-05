@@ -1,0 +1,17 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="perl"
+adep="ghostscript texinfo"
+
+_destin() {
+make INSTALLROOT=$D install install_rdf ||fail destinst
+}
+
+_postin() {
+make -k doc
+mkdir -pv $D/usr/share/{info,doc/$PN}
+cp -Rv doc/*.{ps,txt,doc} doc/html $D/usr/share/doc/$PN
+cp -Rv doc/info/* $D/usr/share/info
+}

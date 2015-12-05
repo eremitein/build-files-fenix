@@ -1,0 +1,13 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+adep="gettext libintl"
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-static \
+  --disable-nls \
+  --disable-dependency-tracking
+}

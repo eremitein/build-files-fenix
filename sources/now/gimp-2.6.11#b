@@ -1,0 +1,32 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="babl gegl gtk2+"
+
+_patch() {
+patch -Np1 -i $sD/${PN}-security_fix-1.patch ||fail secfix
+patch -Np1 -i $sD/${PN}-libpng_fix-1.patch ||fail libpng
+sed -i '/$(helpbrowser)/d' plug-ins/Makefile.in ||fail help
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --disable-nls \
+  --disable-dependency-tracking \
+  --disable-glibtest \
+  --disable-gtktest \
+  --disable-python \
+  --without-gvfs \
+  --disable-static \
+  --without-webkit \
+  --without-xvfb-run \
+  --without-dbus \
+  --with-xmc
+}
+
+_postin() {
+rm -r $D/usr/share/{gtk-doc,locale}
+}

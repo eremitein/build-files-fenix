@@ -1,0 +1,34 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+adep="mpi perl"
+
+_conf() {
+local config="\
+--prefix=/usr \
+--enable-threads \
+--with-gnu-ld \
+--enable-shared"
+
+# compiling long double precision library
+./configure \
+ $config \
+ --enable-long-double
+
+make ||fail long
+make DESTDIR=$D install
+make clean
+
+# compiling single precision library
+./configure \
+ $config \
+ --enable-single
+
+make ||fail single
+make DESTDIR=$D install
+make clean
+
+# compiling double precision library
+./configure $config
+}

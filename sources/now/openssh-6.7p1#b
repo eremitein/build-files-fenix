@@ -1,0 +1,79 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep="openssl zlib pkg-config autoconf"
+adep="linux-pam libedit"
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --libexecdir=/usr/lib/openssh \
+  --sysconfdir=/etc/ssh \
+  --datadir=/usr/share/sshd \
+  --with-md5-passwords \
+  --with-privsep-path=/var/lib/sshd
+}
+
+#_check() {
+#if [ -f /usr/bin/scp ]; then
+#  if [ ! -f /usr/bin/scp.bck ]; then
+#    cp -v /usr/bin/scp{,.bck}
+#  fi
+#fi
+#cp -v scp /usr/bin ||fail cp-scp
+#install -v -m700 -d /var/lib/sshd
+#make -k tests
+#if [ -f /usr/bin/scp.bck ]; then
+#  cp -v /usr/bin/scp{.bck,}
+#else
+#  rm -v /usr/bin/scp
+#fi
+#}
+
+_postin() {
+install -v -m700 -d $D/var/lib/sshd
+chown -v root:sys $D/var/lib/sshd ||fail chown-varssh
+
+mkdir -pv $D/$PKG_I
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
+groupadd -g 50 sshd
+useradd -c 'sshd PrivSep' -d /var/lib/sshd -g sshd -s /bin/false -u 50 sshd
+
+echo -e "\n*** If you want to be able to log in without typing in your password,
+first create ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub with ssh-keygen and then
+copy ~/.ssh/id_rsa.pub to ~/.ssh/authorized_keys on the remote computer that
+you want to log into. You'll need to change REMOTE_USERNAME and REMOTE_HOSTNAME
+for the username and hostname of the remote computer and you'll also need
+to enter your password for the ssh-copy-id command to succeed:
+
+  ssh-keygen
+  ssh-copy-id -i ~/.ssh/id_rsa.pub REMOTE_USERNAME@REMOTE_HOSTNAME
+
+Once you've got passwordless logins working it's actually more secure
+than logging in with a password (as the private key is much longer than
+most people's passwords). If you would like to now disable password logins:
+
+  echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+  echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config
+
+If you added LinuxPAM support and you want ssh to use it then you will need to add a configuration file for sshd and enable use of LinuxPAM. Note, ssh only uses PAM to check passwords, if you've disabled password logins these commands are not needed. If you want to use PAM issue the following commands as the root user: 
+
+  sed 's@d/login@d/sshd@g' /etc/pam.d/login > /etc/pam.d/sshd &&
+  chmod 644 /etc/pam.d/sshd &&
+  echo "UsePAM yes" >> /etc/ssh/sshd_config
+"
+EOSH
+#ln -sv ${PN}-${PKG_A}.in $D/$PKG_I/${PN}-${PKG_A}.out ||fail ln-out2in
+cat > $D/$PKG_I/${PN}-${PKG_A}.out << "EOSH"
+userdel sshd
+groupdel sshd
+EOSH
+
+install -v -m755 contrib/ssh-copy-id $D/usr/bin ||fail ssh-copy-id
+install -v -m644 contrib/ssh-copy-id.1 $D/usr/share/man/man1 \
+ ||fail ssh-copy-id-man
+install -v -m755 -d $D/usr/share/doc/$PN
+install -v -m644 INSTALL LICENCE OVERVIEW README* $D/usr/share/doc/$PN
+echo "PermitRootLogin no" >> $D/etc/ssh/sshd_config
+}

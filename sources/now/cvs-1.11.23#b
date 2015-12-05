@@ -1,0 +1,30 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+adep="tcsh openssh ghostscript"
+
+_patch() { 
+patch -Np1 -i $sD/${PN}-zlib-1.patch ||fail
+sed -i -e 's/getline /get_line /' \
+ lib/getline.{c,h} ||fail sed-getline
+sed -i -e 's/^@sp$/& 1/' doc/cvs.texinfo ||fail sed-texinfo
+touch doc/*.pdf
+}
+
+_conf() {
+./configure --prefix=/usr --docdir=/usr/share/doc/${PN}
+}
+
+_postin() {
+make -C doc html txt
+make DESTDIR=$D -C doc install-pdf
+install -v -m644 FAQ README $D/usr/share/doc/$PN
+
+install -v -m755 -d $D/usr/share/doc/$PN/html/cvs{,client}
+install -v -m644 doc/cvs.html/* \
+ $D/usr/share/doc/$PN/html/cvs
+install -v -m644 doc/cvsclient.html/* \
+ $D/usr/share/doc/$PN/html/cvsclient
+install -v -m644 doc/*.txt $D/usr/share/doc/$PN
+}

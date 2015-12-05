@@ -1,0 +1,21 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _patch _postin _makepkg
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --bindir=/bin \
+  --disable-nls \
+  --htmldir=/usr/share/doc/$PN
+}
+
+_build() {
+make ||fail make
+make html ||fail make-html
+}
+
+_destin() {
+make DESTDIR=$D install ||fail destinst
+make DESTDIR=$D -C doc install-html ||fail install-html
+}

@@ -1,0 +1,25 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _conf _build _check _checkin
+
+adep="bzip2 libnatspec"
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN/-3./3} $rD/$PN
+}
+
+_destin() {
+mkdir -pv $D
+make -f unix/Makefile LOCAL_ZIP="$CFLAGS" prefix=/usr generic
+make -f unix/Makefile INSTALL=install prefix=$D/usr install ||fail make
+}
+
+_postin() {
+mkdir -pv $D/$PKG_I
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
+echo "`basename $0`:  ldconfig"
+ldconfig
+EOSH
+ln -sv ${PN}-${PKG_A}.in $D/$PKG_I/${PN}-${PKG_A}.out ||fail ln-out2in
+}

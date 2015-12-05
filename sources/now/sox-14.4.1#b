@@ -1,0 +1,33 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="pkgconfig,libtool"
+adep="alsa-lib,opencore-amr,libao,lame,ffmpeg,flac,libid3tag,ladspa-sdk,libmad,libvorbis,libogg,libpng,zlib,libsndfile,twolame,wavpack"
+
+_patch() {
+patch -Np1 -i $sD/${PN}-uclibc.patch ||fail uclibc
+patch -Np1 -i $sD/sox-14.4.0-ffmpeg.patch ||fail ffmpeg
+patch -Np1 -i $sD/sox-14.4.0-avcodec54.patch ||fail avcodec54
+patch -Np1 -i $sD/sox-14.4.0-libav-9.patch ||fail libav
+#patch $sD/${PN}-ffmpeg2.patch ||fail ffmpeg2
+#sed -i -e 's/ CODEC_ID/ AV_CODEC_ID/g' \
+# -e 's/ CodecID/ AVCodecID/g' \
+# src/ffmpeg.c ||fail sed-ffmpeg2
+#sed -i -e 's:CFLAGS="-g":CFLAGS="$CFLAGS -g":' \
+# configure ||fail sed-cflags  #386027
+autoreconf -fi ||fail autoreconf
+}
+
+_conf() {
+CFLAGS+=" -fsigned-char "
+./configure \
+  --prefix=/usr \
+  --disable-static \
+  --disable-dependency-tracking \
+  --with-distro="phoenix"
+}
+
+_postin() {
+find . -name '*.la' -exec sed -i -e "/^dependency_libs/s:=.*:='':" {} +
+}

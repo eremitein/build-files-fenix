@@ -1,0 +1,38 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep="pkg-config"
+adep="bzip2 zlib libedit readline findutils"
+
+_patch() {
+local pc
+for pc in *.pc.in ; do
+  echo "Libs.private: @PTHREAD_CFLAGS@" >> ${pc} #454478
+done
+sed -i -e "s:-lpcre ::" libpcrecpp.pc.in ||fail sed-lpcre
+libtoolize ||fail libtool
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --htmldir=/usr/share/doc/$PF/html \
+  --docdir=/usr/share/doc/$PF \
+  --disable-dependency-tracking \
+  --enable-unicode-properties \
+  --enable-shared \
+  --enable-pcre8 \
+  --enable-pcre16 \
+  --enable-pcre32 \
+  --enable-pcregrep-libz \
+  --enable-pcregrep-libbz2 \
+  --enable-pcretest-libreadline \
+  --disable-static
+}
+
+_postin() {
+mkdir -pv $D/lib
+mv -v $D/usr/lib/libpcre.so.* $D/lib ||fail mv-lib
+ln -sfv ../../lib/$(readlink $D/usr/lib/libpcre.so) $D/usr/lib/libpcre.so
+}

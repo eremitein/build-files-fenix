@@ -1,0 +1,10 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check _install _postin
+unset _conf _check _postin
+
+_patch() {
+sed -i -e 's/CFLAGS=/CFLAGS+=/' -e 's/ -g//' Makefile* ||fail sed
+}
+
+_install() {
+make PREFIX=/tools install ||fail install
+}

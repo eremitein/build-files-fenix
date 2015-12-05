@@ -1,0 +1,33 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _makepkg
+
+dep="ncurses xz bison"
+
+_conf() {
+./autogen.sh
+./configure --prefix=/usr --sysconfdir=/etc
+}
+
+_postin() {
+mkdir -pv $D/etc/sysconfig/
+
+ln -sfv libgpm.so.2.1.0 $D/usr/lib/libgpm.so
+install -v -m644 conf/gpm-root.conf $D/etc
+
+install -v -m755 -d $D/usr/share/doc/$PN/support
+install -v -m644 doc/support/* \
+ $D/usr/share/doc/$PN/support
+install -v -m644 doc/{FAQ,HACK_GPM,README*} \
+ $D/usr/share/doc/$PN
+
+cat > $D/etc/sysconfig/mouse << "EOF"
+# Begin /etc/sysconfig/mouse
+
+MDEVICE="/dev/psaux"
+PROTOCOL="imps2"
+GPMOPTS=""
+
+# End /etc/sysconfig/mouse
+EOF
+}

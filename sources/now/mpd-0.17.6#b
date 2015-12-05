@@ -1,0 +1,36 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+_patch() {
+patch -Np1 -i $sD/${PN}-opus-linking.patch ||fail opus
+patch -Np1 -i $sD/mpd-0.17.4-ffmpeg2.patch ||fail ffmpeg
+}
+
+_conf() {
+#LDFLAGS="-lnsl" \
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --libdir=/usr/lib \
+  --mandir=/usr/share/man \
+  --disable-dependency-tracking \
+  --disable-documentation \
+  --disable-ipv6 \
+  --disable-mpg123 \
+  --disable-oss \
+  --disable-ao \
+  --disable-lsr \
+  --disable-ffmpeg \
+  --disable-shout \
+  --disable-vorbis-encoder \
+  --disable-httpd-output \
+  --disable-lame-encoder \
+  --disable-twolame-encoder \
+  --disable-wave-encoder
+#--enable-fluidsynth
+}
+
+_postin() {
+install -D -m 0644 doc/mpdconf.example $D/etc/mpd.conf.example
+}

@@ -1,0 +1,38 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+_patch() { 
+patch -Np1 -i $sD/${PN}-fixes-1.patch ||fail
+sed -i '/-fforce-mem/d' configure* ||fail sed-fforce-mem
+sed -i 's/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/' configure.ac ||fail sed-configure.ac
+touch NEWS AUTHORS ChangeLog
+autoreconf -fi ||fail autoreconf
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --disable-dependency-tracking \
+  --enable-accuracy \
+  --disable-static
+  #--enable-fpm=intel --enable-sso \
+}
+
+_postin() {
+mkdir -pv $D/usr/lib/pkgconfig
+cat > $D/usr/lib/pkgconfig/mad.pc << "EOF"
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: mad
+Description: MPEG audio decoder
+Requires:
+Version: #version#
+Libs: -L${libdir} -lmad
+Cflags: -I${includedir}
+EOF
+sed -i "s/#version#/${PN/libmad-}/" $D/usr/lib/pkgconfig/mad.pc ||fail
+}

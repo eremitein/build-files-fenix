@@ -1,0 +1,17 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check _install _postin
+unset _cleansrc _unpack _patch _conf _check _postin
+
+_cdsrc() {
+cd `pwd`/${PN/-headers} ||fail cdsrc
+D=`pwd`/PKG
+echo "[ `date "+%F %T"` ]"
+}
+
+_build() {
+make mrproper ||fail mrproper
+}
+
+_install() {
+make INSTALL_HDR_PATH=dest headers_install ||fail install
+cp -rv dest/include/* /tools/include
+}

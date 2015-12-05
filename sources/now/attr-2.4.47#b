@@ -1,0 +1,35 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+_patch() {
+sed -i -e 's|/@pkg_name@|&-@pkg_version@|' include/builddefs.in ||fail sed
+export DEBUG=-DNDEBUG
+export OPTIMIZER=$CFLAGS
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --bindir=/bin \
+  --disable-gettext \
+  --libexecdir=/usr/lib
+}
+
+#_check() {
+#make -j1 -k tests root-tests
+#}
+
+_destin() {
+make DIST_ROOT=$D install install-dev install-lib ||fail destinst
+}
+
+_postin() {
+mkdir -pv $D/lib
+chmod -v 755 $D/usr/lib/libattr.so
+mv -v $D/usr/lib/libattr.so.* $D/lib
+ln -sfv ../../lib/$(readlink $D/usr/lib/libattr.so) \
+ $D/usr/lib/libattr.so ||fail ln-libattr.so
+# category 2 manuals are included in "man-pages"
+rm -r $D/usr/share/man/man2
+}

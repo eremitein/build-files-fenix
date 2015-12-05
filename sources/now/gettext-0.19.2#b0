@@ -1,0 +1,18 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check _install _postin
+unset _patch _check _postin
+
+_conf() {
+cd gettext-tools
+EMACS="no" ./configure --prefix=/tools --disable-shared
+}
+
+_build() {
+make -C gnulib-lib ||fail gnulib
+make -C src msgfmt ||fail msgfmt
+make -C src msgmerge ||fail msgmerge
+make -C src xgettext ||fail xgettext
+}
+
+_install() {
+cp -v src/{msgfmt,msgmerge,xgettext} /tools/bin ||fail install
+}
