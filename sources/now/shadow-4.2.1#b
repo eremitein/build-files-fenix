@@ -21,7 +21,7 @@ _conf() {
 _postin() {
 mkdir -pv $D/bin
 mv -v $D/usr/bin/passwd $D/bin ||fail mv-bin
-cat > $D/${PN}.sh << "EOSH"
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
 pwconv
 grpconv
 EOSH

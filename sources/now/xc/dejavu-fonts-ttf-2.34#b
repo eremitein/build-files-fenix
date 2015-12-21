@@ -1,0 +1,23 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _patch _conf _check _destinst _makepkg
+
+_build() {
+mkdir -p $D/usr/share/fonts/X11/dejavu
+cp -a ttf/*.ttf $D/usr/share/fonts/X11/dejavu
+
+mkdir -p $D/etc/fonts/conf.{d,avail}
+( cd fontconfig
+  for file in * ; do
+    cp -a $file $D/etc/fonts/conf.avail
+    ( cd $D/etc/fonts/conf.d ; ln -sf ../conf.avail/$file . )
+  done
+)
+}
+
+_postinst() {
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
+mkfontdir /usr/share/fonts/X11/dejavu
+mkfontscale /usr/share/fonts/X11/dejavu
+EOSH
+}

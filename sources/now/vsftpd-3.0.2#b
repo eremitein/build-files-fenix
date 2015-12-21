@@ -24,7 +24,7 @@ install -v -m 644 vsftpd.conf.5 $D/usr/share/man/man5
 install -v -m 644 vsftpd.conf $D/etc
 install -v -d -m 0755 $D/usr/share/vsftpd/empty
 install -v -d -m 0755 $D/home/ftp
-cat > $D/${PN}.sh << "EOSH"
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
 groupadd -g 47 vsftpd
 groupadd -g 45 ftp
 useradd -c "vsftpd User" -d /dev/null -g vsftpd -s /bin/false -u 47 vsftpd

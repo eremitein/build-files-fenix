@@ -1,0 +1,12 @@
+--- ./src/linux/sw_draw.c.orig	2014-11-25 21:10:48.621179298 +0000
++++ ./src/linux/sw_draw.c	2014-11-25 21:14:32.697187028 +0000
+@@ -58,7 +58,8 @@
+   //unsigned int color32, p;
+   //int i;
+ #ifndef __MACOSX__
+-  Uint32 flags = SDL_DOUBLEBUF | SDL_HWSURFACE;
++  Uint32 flags = SDL_HWSURFACE;
++  //Uint32 flags = SDL_DOUBLEBUF | SDL_HWSURFACE;
+ #else
+   Uint32 flags = SDL_SWSURFACE;
+ #endif

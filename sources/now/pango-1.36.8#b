@@ -9,7 +9,7 @@ _conf() {
 }
 
 _postin() {
-cat > $D/${PN}.sh << "EOSH"
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
 pango-querymodules --update-cache
 EOSH
 rm -r $D/usr/share/gtk-doc

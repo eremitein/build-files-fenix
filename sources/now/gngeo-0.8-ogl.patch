@@ -1,0 +1,11 @@
+--- gngeo-0.8/src/screen.c.orig	2015-02-25 05:41:09.907042876 +0000
++++ gngeo-0.8/src/screen.c	2015-02-25 06:23:13.529129932 +0000
+@@ -330,7 +330,7 @@
+ 	else
+ 		scale = CF_VAL(cf_get_item_by_name("scale"));
+ printf("AA Blitter %s effect %s\n",CF_STR(cf_get_item_by_name("blitter")),CF_STR(cf_get_item_by_name("effect")));
+-	screen_change_blitter_and_effect();
++	//screen_change_blitter_and_effect(); /* VERY UGLY PATCH FOR WORKING OGL */
+ 
+ 	return SDL_TRUE;
+ }

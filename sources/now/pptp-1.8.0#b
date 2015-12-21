@@ -1,0 +1,14 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _conf _check _makepkg
+
+dep="ppp"
+adep=""
+
+_patch() {
+patch -Np0 -i ${sD}/pptpclient-1.8.0-process-name.patch ||fail
+}
+
+_build() {
+make OPTIMISE= DEBUG= CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
+}

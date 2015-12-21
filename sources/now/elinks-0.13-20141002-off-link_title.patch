@@ -1,0 +1,20 @@
+--- elinks-0.13-20141002/src/dialogs/status.c.orig	2014-10-15 19:21:54.516564930 +0000
++++ elinks-0.13-20141002/src/dialogs/status.c	2014-10-15 19:22:44.411566651 +0000
+@@ -150,7 +150,7 @@
+ 
+ 	link_info = get_current_link_info(ses, doc_view);
+ 	if (!link_info) return NULL;
+-
++/*
+ 	link_title = get_current_link_title(doc_view);
+ 	if (link_title) {
+ 		assert(*link_title);
+@@ -160,7 +160,7 @@
+ 		mem_free(link_info);
+ 		mem_free(link_title);
+ 	}
+-
++*/
+ 	if (!ret) ret = link_info;
+ 
+ 	return ret;

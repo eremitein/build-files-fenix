@@ -9,6 +9,7 @@ _patch() {
 patch -Np1 -i ${sD}/${PN}-tinfo.patch ||fail
 autoreconf ||fail autoreconf
 }
+
 _conf() {
 ./configure \
   --prefix=/usr \

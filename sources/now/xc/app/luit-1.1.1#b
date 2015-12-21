@@ -1,0 +1,17 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _check _postinst _makepkg
+
+_patch() {
+line1="#ifdef _XOPEN_SOURCE"
+line2="#  undef _XOPEN_SOURCE"
+line3="#  define _XOPEN_SOURCE 600"
+line4="#endif"
+sed -i -e "s@#ifdef HAVE_CONFIG_H@$line1\n$line2\n$line3\n$line4\n\n&@" \
+  sys.c ||fail sed-sys.c
+unset line1 line2 line3 line4
+}
+
+_conf() {
+./configure $XORG_CONFIG
+}

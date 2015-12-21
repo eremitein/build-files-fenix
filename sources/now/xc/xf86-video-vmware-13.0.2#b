@@ -1,0 +1,9 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _patch _check _postinst _makepkg
+
+_conf() {
+sed -i "/xf86xv.h/i #include <xorg-server.h>" \
+ vmwgfx/vmwgfx_overlay.c ||fail sed
+./configure $XORG_CONFIG
+}

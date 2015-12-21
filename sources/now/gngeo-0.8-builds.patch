@@ -1,0 +1,101 @@
+--- configure.in.orig	2012-12-24 19:10:17.000000000 +0500
++++ configure.in	2012-12-24 19:15:08.000000000 +0500
+@@ -44,7 +44,7 @@
+ # Check for SDL
+ SDL_VERSION=1.2.0
+ AM_PATH_SDL($SDL_VERSION,,AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!]))
+-CFLAGS="$CFLAGS $SDL_CFLAGS"
++CFLAGS="$CFLAGS $SDL_CFLAGS -Wall -Wno-unused"
+ LIBS="$LIBS $SDL_LIBS"
+ 
+ # Setup platform specific optimisation/source/cflags/libs/etc.
+@@ -126,7 +126,7 @@
+ #echo $m68kcore
+ #echo $z80core
+ case $target_cpu in
+-    	i?86) 
++    	i?86)
+ if  test "$enablei386asm" = true ; then
+ 	AC_CHECK_PROG(have_nasm, nasm, true,false)
+ 	CFLAGS="$CFLAGS -m32 -DI386_ASM"
+@@ -140,12 +140,12 @@
+ #setup default 68k core
+ if test $m68kcore = default ; then
+ 	case $target_cpu in
+-    	i?86) 
++    	i?86)
+ 			if test x$have_name=xtrue ; then
+ 				m68kcore=starscream
+ 			else
+ 				m68kcore=gen68k
+-			fi   		
++			fi
+     		;;
+     	arm) m68kcore=cyclone
+     		;;
+@@ -156,12 +156,12 @@
+ #setup default z80 core
+ if test $z80core = default ; then
+ 	case $target_cpu in
+-    	i?86) 
++    	i?86)
+ 			if test x$have_name=xtrue ; then
+ 				z80core=raze
+ 			else
+ 				z80core=mamez80
+-			fi   		
++			fi
+     		;;
+     	arm) z80core=drz80
+     		;;
+@@ -235,20 +235,12 @@
+            AC_DEFINE(PROCESSOR_INTEL, 1, [Define if you have an x86 processor])
+            ALIGNLONGS=0
+ 	   proc_i386=true
+-		CFLAGS="$CFLAGS -O3 -fstrength-reduce -frerun-loop-opt -Wall -Wno-unused -funroll-loops \
+-                    -ffast-math -falign-functions=2 -falign-jumps=2 -fexpensive-optimizations \
+-                    -falign-loops=2 -fschedule-insns2 -malign-double -fomit-frame-pointer -g \
+-		    -fno-strict-aliasing -pipe -mtune=$target_cpu -DCPU=$target_cpu"
+            ;;
+      x86_64)
+ 	   AC_MSG_RESULT(Turning on x86_64 processor optimisations)
+            AC_DEFINE(PROCESSOR_ADM64, 1, [Define if you have an x86_64 processor])
+            ALIGNLONGS=0
+ 	   proc_x64=true
+-		CFLAGS="$CFLAGS -O3 -fstrength-reduce -frerun-loop-opt -Wall -Wno-unused -funroll-loops \
+-                    -ffast-math  -fexpensive-optimizations \
+-                     -malign-double -fomit-frame-pointer -g \
+-		    -fno-strict-aliasing -pipe -DCPU=$target_cpu"
+            ;;
+     sparc*) AC_MSG_RESULT(Turning on sparc processor optimisations)
+            AC_DEFINE(PROCESSOR_SPARC, 1, [Define if you have a sparc processor])
+@@ -257,28 +249,20 @@
+ 	   if test $target_cpu = sparc64 && test $CC_MAJOR -ge 3 ; then
+ 		CFLAGS="$CFLAGS -mcpu=v9"
+ 	   fi
+-	   CFLAGS="$CFLAGS -O3 -Wall -Wno-unused -funroll-loops \
+-                    -ffast-math -fomit-frame-pointer -g"
+            ;;
+     arm)   AC_MSG_RESULT(Turning on arm processor optimisations)
+            AC_DEFINE(PROCESSOR_ARM, 1, [Define if you have an ARM processor])
+            ALIGNLONGS=1
+ 	   proc_arm=true
+-	   CFLAGS="$CFLAGS -O3 -Wall -ftracer -fstrength-reduce -Wno-unused -funroll-loops \
+-                    -fomit-frame-pointer -fstrict-aliasing -ffast-math \
+-	   	    "
+-
+ 	   	    ;;
+     *)     AC_MSG_RESULT(Processor type unknown - Use generic optimisations)
+            ALIGNLONGS=1
+            optimum=no
+-	   CFLAGS="$CFLAGS -O3 -Wall -Wno-unused -funroll-loops \
+-                    -ffast-math -g"
+            ;;
+   esac
+ 
+ AM_CONDITIONAL(PROCESSOR_ARM,[test x$proc_arm = xtrue])
+-  
++
+ AC_DEFINE(ALIGNLONGS, ALIGNLONGS,
+             [Undefine if your processor can read unaligned 32-bit values])
+ 

@@ -17,7 +17,7 @@ make -C src ROOT=$D install ||fail destinst
 _postin() {
 # dead symlink
 rm -f $D/usr/bin/lastb
-cat > $D/${PN}.sh << "EOSH"
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
 /sbin/telinit U &>/dev/null
 EOSH
 }

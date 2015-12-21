@@ -10,7 +10,7 @@ _conf() {
 }
 
 _postin() {
-cat > $D/${PN}.sh << "EOSH"
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
 gdk-pixbuf-query-loaders --update-cache
 EOSH
 rm -r $D/usr/share/gtk-doc

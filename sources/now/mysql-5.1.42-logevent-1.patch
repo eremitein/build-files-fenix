@@ -1,0 +1,39 @@
+Submitted By: Bruce dubbs (bdubbs at linuxfromscratch dot org)
+Date: 2010-01-28
+Initial Package Version: 5.1.42
+Origin: mysql mailing list
+Description: Patches event logging to fix a problem when
+             compiled with gcc-4.4.
+
+--- a/sql/log_event.cc  2009-10-23 03:13:42 +0000
++++ b/sql/log_event.cc  2009-11-09 17:36:13 +0000
+@@ -2138,8 +2138,8 @@ void Query_log_event::pack_info(Protocol
+ /**
+   Utility function for the next method (Query_log_event::write()) .
+ */
+-static void write_str_with_code_and_len(char **dst, const char *src,
+-                                        int len, uint code)
++static void write_str_with_code_and_len(uchar **dst, const char *src,
++                                        uint len, uint code)
+ {
+   /*
+     only 1 byte to store the length of catalog, so it should not
+@@ -2234,7 +2234,7 @@ bool Query_log_event::write(IO_CACHE* fi
+   }
+   if (catalog_len) // i.e. this var is inited (false for 4.0 events)
+   {
+-    write_str_with_code_and_len((char **)(&start),
++    write_str_with_code_and_len(&start,
+                                 catalog, catalog_len, Q_CATALOG_NZ_CODE);
+     /*
+       In 5.0.x where x<4 masters we used to store the end zero here. This was
+@@ -2272,7 +2272,7 @@ bool Query_log_event::write(IO_CACHE* fi
+   {
+     /* In the TZ sys table, column Name is of length 64 so this should be ok */
+     DBUG_ASSERT(time_zone_len <= MAX_TIME_ZONE_NAME_LENGTH);
+-    write_str_with_code_and_len((char **)(&start),
++    write_str_with_code_and_len(&start,
+                                 time_zone_str, time_zone_len, Q_TIME_ZONE_CODE);
+   }
+   if (lc_time_names_number)
+

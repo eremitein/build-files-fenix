@@ -10,7 +10,7 @@ _destin() {
 mkdir -pv $D/{boot/grub,etc/sysconfig}
 cd $D/etc ||fail cd-etc
 
-cat > $D/${PN}.sh << "EOSH"
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
 bash /lib/udev/init-net-rules.sh
 echo -e "\n================================================================"
 echo -e "[i] This is content of /etc/udev/rules.d/70-persistent-net.rules

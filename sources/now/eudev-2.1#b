@@ -45,7 +45,7 @@ tar -xvf $sD/${PN}-manpages.t* -C $D/usr/share
 #tar -xvf $sD/udev-lfs-20140408.tar.*
 #make -f udev-lfs-20140408/Makefile.lfs DESTDIR=$D \
 # install ||fail udev-lfs
-cat > $D/${PN}.sh << "EOSH"
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
 udevadm hwdb --update
 EOSH
 }

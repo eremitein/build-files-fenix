@@ -1,0 +1,18 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _patch _check _postinst _makepkg
+
+_conf() {
+./configure $XORG_CONFIG
+}
+
+#_postinst() {
+#mkdir -pv $D/usr/share/X11/xorg.conf.d
+#cat > $D/usr/share/X11/xorg.conf.d/70-glamor-nouveau.conf << "EOF"
+#Section "Device"
+#       Identifier "nvidia"
+#       Driver "nouveau"
+#       Option "AccelMethod" "glamor"
+#EndSection
+#EOF
+#}

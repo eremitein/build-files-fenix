@@ -1,0 +1,32 @@
+--- libvo/vo_sdl.c.orig	2014-11-25 22:36:01.009038946 +0000
++++ libvo/vo_sdl.c	2014-11-25 22:36:22.629039692 +0000
+@@ -389,9 +389,9 @@
+ 		//}
+ 	#endif
+ 
+-#if !defined( __AMIGAOS4__ ) && !defined( __APPLE__ )
+-	priv->sdlfullflags |= SDL_DOUBLEBUF;
+-#endif
++//#if !defined( __AMIGAOS4__ ) && !defined( __APPLE__ )
++//	priv->sdlfullflags |= SDL_DOUBLEBUF;
++//#endif
+ 
+ 	/* get information about the graphics adapter */
+ 	vidInfo = SDL_GetVideoInfo ();
+--- libvo/sdl_common.c.orig	2014-11-25 23:29:40.025149990 +0000
++++ libvo/sdl_common.c	2014-11-25 23:29:45.476150178 +0000
+@@ -132,10 +132,10 @@
+     mode_flags = flags;
+     if (vo_fs) flags |= SDL_FULLSCREEN;
+     // doublebuf with opengl creates flickering
+-#if !defined( __AMIGAOS4__ ) && !defined( __APPLE__ )
+-    if (vo_doublebuffering && !(flags & SDL_OPENGL))
+-        flags |= SDL_DOUBLEBUF;
+-#endif
++//#if !defined( __AMIGAOS4__ ) && !defined( __APPLE__ )
++//    if (vo_doublebuffering && !(flags & SDL_OPENGL))
++//        flags |= SDL_DOUBLEBUF;
++//#endif
+     if (!vo_border)
+         flags |= SDL_NOFRAME;
+     if (geometry_xy_changed) {

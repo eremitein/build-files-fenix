@@ -1,0 +1,41 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _check _makepkg
+
+_unpack() {
+tar xf $sD/${PN}*.tar.* -C $rD ||fail unpack
+mv -v $rD/${PN/Lib} $rD/$PN
+}
+
+_patch() {
+patch -Np1 -i $sD/${PN}-add_xdemos-1.patch ||fail xdemos
+patch -Np1 -i $sD/${PN}-upstream_fixes-1.patch ||fail fixes
+}
+
+_conf() {
+./autogen.sh \
+  CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" \
+  --prefix=$XORG_PREFIX \
+  --sysconfdir=/etc \
+  --enable-texture-float \
+  --enable-gles1 \
+  --enable-gles2 \
+  --enable-openvg \
+  --enable-osmesa \
+  --enable-xa \
+  --enable-gbm \
+  --enable-gallium-egl \
+  --enable-gallium-gbm \
+  --enable-glx-tls \
+  --enable-r600-llvm-compiler \
+  --with-egl-platforms="drm,x11" \
+  --with-gallium-drivers="nouveau,r300,r600,radeonsi,svga,swrast"
+  #--with-gallium-drivers="nouveau,r600,svga,swrast"
+}
+
+_postinst() {
+make -C xdemos DEMOS_PREFIX=$XORG_PREFIX
+make -C xdemos DEMOS_PREFIX=$XORG_PREFIX DESTDIR=$D install
+mkdir -pv $D/usr/share/doc/$PN
+cp -rfv docs/* $D/usr/share/doc/$PN
+}

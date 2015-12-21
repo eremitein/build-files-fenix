@@ -1,0 +1,93 @@
+--- gngeo-0.7/src/blitter/opengl.c.orig	2015-02-24 14:12:09.322456259 +0000
++++ gngeo-0.7/src/blitter/opengl.c	2015-02-24 14:14:51.028461837 +0000
+@@ -57,11 +57,14 @@
+ 	Uint32 width = visible_area.w;
+ 	Uint32 height = visible_area.h;		
+ 	
++        printf("OpenGL debug: blitter_opengl_init 0\n");
+         if (load_glproc() == SDL_FALSE) return SDL_FALSE;
++        printf("OpenGL debug: blitter_opengl_init 1\n");
+ 
+ 	sdl_flags = (fullscreen?SDL_FULLSCREEN:0)| SDL_DOUBLEBUF | SDL_HWSURFACE
+ 	    | SDL_HWPALETTE | SDL_OPENGL | SDL_RESIZABLE;
+ 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
++  printf("OpenGL debug: blitter_opengl_init 2\n");
+ 
+ 	if ((effect[neffect].x_ratio!=2 || effect[neffect].y_ratio!=2) &&  
+ 	    (effect[neffect].x_ratio!=1 || effect[neffect].y_ratio!=1) ) {
+@@ -76,8 +79,10 @@
+ 	    width *=effect[neffect].x_ratio;
+ 	    height*=effect[neffect].y_ratio;
+ 	}
++  printf("OpenGL debug: blitter_opengl_init 3\n");
+ 	width *= scale;
+ 	height *= scale;
++	printf("%d %d %d %d %d\n",width,height,scale,visible_area.w,visible_area.h);
+ /*
+ 	} else {
+ 	    width = conf.res_x;
+@@ -88,7 +93,9 @@
+ 	conf.res_x=width;
+ 	conf.res_y=height;
+ 	
++  printf("OpenGL debug: blitter_opengl_init 4\n");
+ 	video_opengl = SDL_SetVideoMode(width, height, 16, sdl_flags);
++  printf("OpenGL debug: blitter_opengl_init 5\n");
+ 	
+ 	if ( video_opengl == NULL)
+ 		return SDL_FALSE;
+@@ -134,7 +141,7 @@
+ 	    c = (((float)visible_area.h/256.0))*effect[neffect].y_ratio/2.0;
+ 	    d = (((float)((visible_area.w<<1)-512)/256.0))*effect[neffect].y_ratio/2.0;
+ 	    screen = SDL_CreateRGBSurface(SDL_SWSURFACE, visible_area.w<<1,  /*visible_area.h<<1*/512, 16, 0xF800, 0x7E0, 0x1F, 0);
+-	    //printf("[opengl] create_screen %p\n",screen);
++	    printf("[opengl] create_screen %p\n",screen);
+ #ifdef USE_GL2
+ 	    tex_opengl= SDL_CreateRGBSurface(SDL_SWSURFACE, 1024, 512, 16, 0xF800, 0x7E0, 0x1F, 0);
+ 	    if (visible_area.w==320) {
+@@ -163,8 +170,10 @@
+ 
+   sdl_flags = SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_HWPALETTE | SDL_OPENGL | SDL_RESIZABLE;
+ 
++  printf("OpenGL debug: blitter_opengl_resize 0\n");
+   video_opengl = SDL_SetVideoMode(w, h, 16, sdl_flags);
+ 
++  printf("OpenGL debug: blitter_opengl_resize 1\n");
+   if ( video_opengl == NULL)
+     return SDL_FALSE;
+ 
+@@ -177,6 +186,7 @@
+ void 
+ blitter_opengl_update()
+ {
++    printf("OpenGL debug: blitter_opengl_update 0 \n");
+     float VALA=512/(float)visible_area.w-1.0; /* 240.0f*2.0f/304.0f - 1.0f */
+     int VALB=.0625; /* 16.0f/256.0f  */
+     int VALC=.9375; /* 240.0f/256.0f */
+@@ -351,20 +361,26 @@
+ #endif
+     }
+ 	
++    printf("OpenGL debug: blitter_opengl_update 1 \n");
+     SDL_GL_SwapBuffers();	
++    printf("OpenGL debug: blitter_opengl_update 2 \n");
+ }
+ 
+ void
+ blitter_opengl_close()
+ {
++  printf("OpenGL debug: blitter_opengl_close 0 \n");
+ 	if (screen != NULL)
+ 		SDL_FreeSurface(screen);
++  printf("OpenGL debug: blitter_opengl_close 1 \n");
+ }
+ 
+ void
+ blitter_opengl_fullscreen()
+ {
++  printf("OpenGL debug: blitter_opengl_fullscreen 0 \n");
+ 	SDL_WM_ToggleFullScreen(video_opengl);
++  printf("OpenGL debug: blitter_opengl_fullscreen 1 \n");
+ }
+ 
+ #endif

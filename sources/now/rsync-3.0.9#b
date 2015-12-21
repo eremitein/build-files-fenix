@@ -12,7 +12,7 @@ _conf() {
 }
 
 _postin() {
-cat > $D/${PN}.sh << "EOSH"
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
 groupadd -g 48 rsyncd
 useradd -c "rsyncd Daemon" -d /home/rsync -g rsyncd \
  -s /bin/false -u 48 rsyncd

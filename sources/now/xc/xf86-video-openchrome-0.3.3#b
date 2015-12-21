@@ -1,0 +1,8 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _patch _check _postinst _makepkg
+
+_conf() {
+sed -i "/via_3d.h/i #include <xorg-server.h>" src/via_3d.c ||fail sed
+./configure $XORG_CONFIG
+}

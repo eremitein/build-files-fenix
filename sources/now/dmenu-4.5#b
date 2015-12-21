@@ -7,8 +7,3 @@ patch -Np1 -i ${sD}/${PN}-xft-debian.diff ||fail
 sed -i -e 's/-Os//' -e '/^CFLAGS/s/=/+=/' \
  -e 's@/usr/local@/usr@' config.mk ||fail sed
 }
-
-#_postin() {
-#mv $D/usr/bin/dwm{,-6.1-dark-pt}
-#ln -sv dwm-6.1-dark-pt $D/usr/bin/dwm
-#}

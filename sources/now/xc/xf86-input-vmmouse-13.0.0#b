@@ -1,0 +1,11 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _patch _check _postinst _makepkg
+
+_conf() {
+patch -Np1 -i $sD/${PN}-build_fix-1.patch ||fail
+./configure $XORG_CONFIG \
+  --without-hal-fdi-dir \
+  --without-hal-callouts-dir \
+  --with-udev-rules-dir=/lib/udev/rules.d
+}

@@ -1,0 +1,40 @@
+--- Makefile.orig	2014-10-28 10:42:43.147277356 +0000
++++ Makefile	2014-10-28 10:47:59.582288272 +0000
+@@ -20,7 +20,7 @@
+ CC= gcc
+ #SKFLAGS= -g -DSYSV -Wall
+ #LDFLAGS= -g
+-SKFLAGS= $(RPM_OPT_FLAGS) -O3 -DSYSV -fomit-frame-pointer -Wall -fno-strength-reduce
++SKFLAGS= $(RPM_OPT_FLAGS) $(CFLAGS) -DSYSV -fomit-frame-pointer -Wall -fno-strength-reduce
+ # -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
+ # -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
+ # $(shell getconf LFS_SKFLAGS)
+@@ -30,6 +30,7 @@
+ INSTALL = /usr/bin/install
+ 
+ # Destination paths, set prefix=/opt if required
++DESTDIR=
+ BINDIR = $(prefix)/usr/sbin
+ MANDIR = $(prefix)/usr/share/man
+ 
+@@ -127,14 +128,14 @@
+ 	rm -f syslogd klogd ksym syslog_tst oops_test TAGS tsyslogd tklogd
+ 
+ install_exec: syslogd klogd
+-	${INSTALL} -m 500 -s syslogd ${BINDIR}/syslogd
+-	${INSTALL} -m 500 -s klogd ${BINDIR}/klogd
++	${INSTALL} -m 500 -D -s syslogd ${DESTDIR}/${BINDIR}/syslogd
++	${INSTALL} -m 500 -D -s klogd ${DESTDIR}/${BINDIR}/klogd
+ 
+ install_man:
+-	${INSTALL} -o ${MAN_USER} -g ${MAN_GROUP} -m ${MAN_PERMS} sysklogd.8 ${MANDIR}/man8/sysklogd.8
+-	${INSTALL} -o ${MAN_USER} -g ${MAN_GROUP} -m ${MAN_PERMS} syslogd.8 ${MANDIR}/man8/syslogd.8
+-	${INSTALL} -o ${MAN_USER} -g ${MAN_GROUP} -m ${MAN_PERMS} syslog.conf.5 ${MANDIR}/man5/syslog.conf.5
+-	${INSTALL} -o ${MAN_USER} -g ${MAN_GROUP} -m ${MAN_PERMS} klogd.8 ${MANDIR}/man8/klogd.8
++	${INSTALL} -o ${MAN_USER} -g ${MAN_GROUP} -m ${MAN_PERMS} -D sysklogd.8 ${DESTDIR}/${MANDIR}/man8/sysklogd.8
++	${INSTALL} -o ${MAN_USER} -g ${MAN_GROUP} -m ${MAN_PERMS} -D syslogd.8 ${DESTDIR}/${MANDIR}/man8/syslogd.8
++	${INSTALL} -o ${MAN_USER} -g ${MAN_GROUP} -m ${MAN_PERMS} -D syslog.conf.5 ${DESTDIR}/${MANDIR}/man5/syslog.conf.5
++	${INSTALL} -o ${MAN_USER} -g ${MAN_GROUP} -m ${MAN_PERMS} -D klogd.8 ${DESTDIR}/${MANDIR}/man8/klogd.8
+ 
+ obj-m += oops.o
+ 

@@ -1,0 +1,47 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _patch _check _postinst _makepkg
+
+_conf() {
+sed -i -e \
+ '/ac_cv_header_glamor/s/\$ac_includes_default/#include \\"xorg-server.h\\"/' \
+ -e '/GLAMOR_NO_DRI3/s/\(#include \)/\1\\"xorg-server.h\\"\n\1/' configure
+./configure $XORG_CONFIG
+}
+
+_postinst() {
+mkdir -pv $D/etc/X11/xorg.conf.d
+cat > $D/etc/X11/xorg.conf.d/10-radeon.conf << "EOF"
+Section "ServerFlags"
+    Option  "OffTime"      "3"
+    Option  "StandbyTime"  "3"
+    Option  "SuspendTime"  "3"
+EndSection
+
+Section "Module"
+    Load "glamoregl"
+EndSection
+
+Section "Device"
+    ### Available Driver options are:-
+    ### Values: <i>: integer, <f>: float, <bool>: "True"/"False",
+    ### <string>: "String", <freq>: "<f> Hz/kHz/MHz",
+    ### <percent>: "<f>%"
+    ### [arg]: arg optional
+    #Option "SWcursor" "off"
+    #Option "Accel" "on"
+    #Option "ZaphodHeads" "LVDS,VGA-0"
+    #Option "ColorTiling" "on"
+    #Option "ColorTiling2D" "on"
+    #Option "EnablePageFlip" "on"
+    #Option "AccelMethod" "glamor" or "EXA"
+    ## EXA
+    ## Option "EXAVSync" "off"
+    ## Option "EXAPixmaps" "boolean"
+    ## Option "SwapbuffersWait" "on"
+    Identifier "radeon"
+    Driver "radeon"
+    Option "AccelMethod" "glamor"
+EndSection
+EOF
+}

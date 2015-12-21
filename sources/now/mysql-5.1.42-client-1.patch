@@ -1,0 +1,30 @@
+Submitted By: Bruce dubbs (bdubbs at linuxfromscratch dot org)
+Date: 2010-01-28
+Initial Package Version: 5.1.42
+Origin: mysql mailing list
+Description: Patches the mysqlclient library to fix a problem when
+             compiled with gcc-4.4.
+
+--- a/libmysql/libmysql.c       2009-12-16 11:54:42.000000000 -0600
++++ b/libmysql/libmysql.c       2010-01-28 01:30:19.000000000 -0600
+@@ -2271,7 +2271,7 @@
+
+ /* Store type of parameter in network buffer. */
+
+-static void store_param_type(char **pos, MYSQL_BIND *param)
++static void store_param_type(unsigned char **pos, MYSQL_BIND *param)
+ {
+   uint typecode= param->buffer_type | (param->is_unsigned ? 32768 : 0);
+   int2store(*pos, typecode);
+@@ -2550,8 +2550,8 @@
+        Store types of parameters in first in first package
+        that is sent to the server.
+       */
+-      for (param= stmt->params;	param < param_end ; param++)
+-        store_param_type((char**) &net->write_pos, param);
++      for (param= stmt->params; param < param_end ; param++)
++        store_param_type(&net->write_pos, param);
+     }
+
+     for (param= stmt->params; param < param_end; param++)
+

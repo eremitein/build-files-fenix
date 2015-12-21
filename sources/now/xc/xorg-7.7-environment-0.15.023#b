@@ -1,0 +1,32 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _patch _conf _build _check _postinst _cleanpkg _makepkg
+
+_unpack() {
+mkdir -pv $rD/$PN
+}
+
+_destinst () {
+mkdir -pv $D/etc/{profile,ld.so.conf}.d
+cat > $D/etc/profile.d/xorg.sh << "EOF"
+XORG_PREFIX="/usr"
+XORG_CONFIG="--prefix=$XORG_PREFIX \
+ --sysconfdir=/etc \
+ --localstatedir=/var \
+ --disable-static"
+export XORG_PREFIX XORG_CONFIG
+EOF
+chmod 744 $D/etc/profile.d/xorg.sh
+echo "$XORG_PREFIX/lib" > $D/etc/ld.so.conf.d/xorg.ld.conf
+
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
+. /etc/profile.d/xorg.sh
+#sed "s@/usr/X11R6@$XORG_PREFIX@g" -i /etc/man_db.conf
+#ln -s $XORG_PREFIX/share/X11 /usr/share/X11
+#install -v -m755 -d $XORG_PREFIX
+#install -v -m755 -d $XORG_PREFIX/lib
+case $(uname -m) in
+  x86_64) ln -s lib $XORG_PREFIX/lib64
+esac
+EOSH
+}

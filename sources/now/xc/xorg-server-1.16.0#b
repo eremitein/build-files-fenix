@@ -1,0 +1,40 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _check _makepkg
+
+_patch() {
+patch -Np1 -i $sD/${PN}-upstream_glamor_fix-1.patch ||fail glamor
+patch -Np1 -i $sD/${PN}-add_prime_support-1.patch ||fail prime
+sed -i "/scrnintstr/i #include <xorg-server.h>" \
+ exa/exa.h glamor/glamor.h ||fail sed-glamor
+}
+
+_conf() {
+./configure \
+  $XORG_CONFIG \
+  --with-xkb-output=/var/lib/xkb \
+  --enable-dmx \
+  --enable-glamor \
+  --enable-dri \
+  --enable-libdrm \
+  --disable-config-hal \
+  --disable-config-dbus \
+  --disable-linux-acpi \
+  --without-dtrace \
+  --without-fop \
+  --with-os-vendor=fenix \
+  --with-sha1=libcrypto \
+  --enable-install-setuid
+#  --enable-suid-wrapper
+}
+
+_postinst() {
+#chmod +s $D/usr/bin/Xorg
+mkdir -pv $D/etc/X11/xorg.conf.d
+#cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
+#cat >> /etc/sysconfig/createfiles << "EOF"
+#/tmp/.ICE-unix dir 1777 root root
+#/tmp/.X11-unix dir 1777 root root
+#EOF
+#EOSH
+}

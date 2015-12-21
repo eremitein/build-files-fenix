@@ -1,0 +1,39 @@
+--- freetype-2.5.3/include/config/ftoption.h	2011-07-20 04:46:15.000000000 +0000
++++ freetype-2.5.3_/include/config/ftoption.h	2013-07-16 11:34:33.000000000 +0000
+@@ -92,7 +92,7 @@
+   /* This is done to allow FreeType clients to run unmodified, forcing     */
+   /* them to display normal gray-level anti-aliased glyphs.                */
+   /*                                                                       */
+-/* #define FT_CONFIG_OPTION_SUBPIXEL_RENDERING */
++#define FT_CONFIG_OPTION_SUBPIXEL_RENDERING
+ 
+ 
+   /*************************************************************************/
+@@ -555,7 +555,7 @@
+   /*   Do not #undef this macro here, since the build system might         */
+   /*   define it for certain configurations only.                          */
+   /*                                                                       */
+-#define TT_CONFIG_OPTION_BYTECODE_INTERPRETER
++/* #define TT_CONFIG_OPTION_BYTECODE_INTERPRETER */
+ 
+ 
+   /*************************************************************************/
+@@ -637,7 +637,8 @@
+   /*   http://www.microsoft.com/typography/otspec/glyf.htm                 */
+   /*   http://fonts.apple.com/TTRefMan/RM06/Chap6glyf.html                 */
+   /*                                                                       */
+-#undef TT_CONFIG_OPTION_COMPONENT_OFFSET_SCALED
++/* #undef TT_CONFIG_OPTION_COMPONENT_OFFSET_SCALED */
++#define TT_CONFIG_OPTION_COMPONENT_OFFSET_SCALED
+ 
+ 
+   /*************************************************************************/
+@@ -746,7 +747,7 @@
+   /* This experimental option is only active if the render mode is         */
+   /* FT_RENDER_MODE_LIGHT.                                                 */
+   /*                                                                       */
+-/* #define AF_CONFIG_OPTION_USE_WARPER */
++#define AF_CONFIG_OPTION_USE_WARPER
+ 
+   /* */
+ 

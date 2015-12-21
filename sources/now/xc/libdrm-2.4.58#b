@@ -1,0 +1,9 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _patch _check _postinst _makepkg
+
+_conf() {
+sed -e "/pthread-stubs/d" -i configure.ac ||fail sed-conf
+autoreconf -fiv ||fail autorec
+./configure --prefix=/usr --enable-udev
+}

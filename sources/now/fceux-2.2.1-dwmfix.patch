@@ -1,0 +1,20 @@
+--- src/drivers/sdl/sdl-video.cpp.orig	2015-06-28 12:15:30.415130928 +0000
++++ src/drivers/sdl/sdl-video.cpp	2015-06-28 12:15:12.534130311 +0000
+@@ -225,6 +225,7 @@
+ 		g_config->getOption("SDL.NoFullscreenCursor", &no_cursor);
+ 		flags |= SDL_FULLSCREEN;
+ 		SDL_ShowCursor(!no_cursor);
++    //SDL_WM_ToggleFullScreen(s_screen);
+ 	}
+ 	else {
+ 		SDL_ShowCursor(1);
+--- src/drivers/sdl/sdl-opengl.cpp.orig	2015-06-28 12:17:06.283134235 +0000
++++ src/drivers/sdl/sdl-opengl.cpp	2015-06-28 11:47:44.248073451 +0000
+@@ -187,6 +187,7 @@
+ 		yscale=(double)screen->h / (double)(b-t);
+ 		if(xscale<yscale) yscale = xscale;
+ 		if(yscale<xscale) xscale = yscale;
++    SDL_WM_ToggleFullScreen(screen);
+ 	}
+ 
+ 	{

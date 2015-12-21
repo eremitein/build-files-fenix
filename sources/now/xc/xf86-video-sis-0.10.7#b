@@ -1,0 +1,11 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _check _postinst _makepkg
+
+_patch() {
+patch -Np1 -i $sD/${PN}-upstream_fixes-1.patch ||fail
+}
+
+_conf() {
+./configure $XORG_CONFIG
+}

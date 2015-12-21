@@ -1,0 +1,50 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _check _makepkg
+
+dep=""
+adep="lzo openssl pam"
+
+_patch() {
+patch -Np1 -i ${sD}/${PN}-pkcs11.patch ||fail
+sed -i \
+  -e "s/gcc \${CC_FLAGS}/\${CC} \${CFLAGS} -Wall/" \
+  -e "s/-shared/-shared \${LDFLAGS}/" \
+  plugin/*/Makefile ||fail
+}
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --sysconfdir=/etc/openvpn \
+  --localstatedir=/var \
+  --datadir=/usr/share \
+  --mandir=/usr/share/man \
+  --docdir=/usr/share/doc/$PN \
+  --enable-password-save
+}
+
+_postin() {
+_doc AUTHORS COPY* INSTALL* \
+ NEWS PORTS README* sample-config-files sample-keys sample-scripts easy-rsa
+
+mkdir -pv $D/$PKG_I
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
+#groupadd openvpn
+#useradd -c 'openvpn fakeuser' -d /dev/null -g openvpn -s /bin/false openvpn
+mkdir -p /etc/openvpn/{certs,keys}
+chown root:nogroup /etc/openvpn/{certs,keys}
+chmod 750 /etc/openvpn/{certs,keys}
+cat << EOF > /etc/openvpn/README.TXT
+Have a look in /usr/share/doc/#openvpn#/sample-config-files
+for some more examples of how to configure OpenVPN.  You'll
+need to add something to your /etc/rc.d/rc.local to start
+OpenVPN, as well as to tell it where to find its config file.
+
+
+See "man openvpn" and the other docs for more information.
+EOF
+EOSH
+sed -i "s/#openvpn#/${PN}/" $D/$PKG_I/${PN}-${PKG_A}.in
+}

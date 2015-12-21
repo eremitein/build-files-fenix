@@ -1,0 +1,16 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destin _postin _cleanpkg _checkin _makepkg
+unset _patch _check _postin _makepkg
+
+dep="ncurses"
+adep="file gtk+2 libX11"
+
+_conf() {
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --disable-remote-cmds \
+  --disable-dependency-tracking
+  #--enable-developer \
+  #--with-sanitize=thread \ !not build!
+}

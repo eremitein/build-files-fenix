@@ -24,7 +24,7 @@ make -j1 INSTROOT=$D install install-etcppp ||fail destinst
 }
 
 _postin() {
-cat > $D/${PN}.sh << "EOSH"
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
 groupadd -g 52 pppusers
 
 echo -e "\n** If necessary add the users who may run PPP to the pppusers group:

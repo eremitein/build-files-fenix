@@ -1,0 +1,11 @@
+# _cleansrc _unpack _cdsrc _patch _conf _build _check
+# _destinst _postinst _cleanpkg _checkinst _makepkg
+unset _patch _check _postinst _makepkg
+
+_conf() {
+sed "s/pthread-stubs//" -i configure ||fail sed-conf
+./configure \
+  $XORG_CONFIG \
+  --enable-xinput \
+  --docdir='${datadir}'/doc/$PN
+}

@@ -27,7 +27,7 @@ make \
 
 _postin() {
 chmod -v 755 $D/usr/lib/libpci.so.3.2.0
-cat > $D/${PN}.sh << "EOSH"
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
 echo -e "\n  The pci.ids data file is constantly being updated. To get 
 a current version of this file, run update-pciids as the root user. 
 This program requires the which-2.20 script or program to find curl, 

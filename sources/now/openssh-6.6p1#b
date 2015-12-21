@@ -35,7 +35,7 @@ _postin() {
 install -v -m700 -d $D/var/lib/sshd
 chown -v root:sys $D/var/lib/sshd ||fail chown-varssh
 
-cat > $D/${PN}.sh << "EOSH"
+cat > $D/$PKG_I/${PN}-${PKG_A}.in << "EOSH"
 groupadd -g 50 sshd
 useradd -c 'sshd PrivSep' -d /var/lib/sshd -g sshd -s /bin/false -u 50 sshd
 
