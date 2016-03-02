@@ -1,1 +1,48 @@
-/sources/all/Xorg-7.7/MesaLib-10.2.7-upstream_fixes-1.patch
+Submitted By:            Pierre Labastie <pierre dot labastie at neuf dot fr>
+Date:                    2014-09-11
+Initial Package Version: 10.2.7
+Upstream Status:         Applied
+Origin:                  Arch Linux (merging 3 patches and removing comments)
+Description:             Those changes have been applied upstream to account
+                         for some API changes in LLVM 3.5
+
+--- Mesa-10.2.7.old/src/gallium/auxiliary/gallivm/lp_bld_debug.cpp	2014-09-06 01:35:25.000000000 +0200
++++ Mesa-10.2.7.new/src/gallium/auxiliary/gallivm/lp_bld_debug.cpp	2014-09-11 16:25:30.538962925 +0200
+@@ -61,7 +61,9 @@
+ #include <llvm/MC/MCRegisterInfo.h>
+ #endif /* HAVE_LLVM >= 0x0301 */
+ 
+-#if HAVE_LLVM >= 0x0303
++#if HAVE_LLVM >= 0x0305
++#define OwningPtr std::unique_ptr
++#elif HAVE_LLVM >= 0x0303
+ #include <llvm/ADT/OwningPtr.h>
+ #endif
+ 
+diff -Naur Mesa-10.2.7.old/src/gallium/auxiliary/gallivm/lp_bld_misc.cpp Mesa-10.2.7.new/src/gallium/auxiliary/gallivm/lp_bld_misc.cpp
+--- Mesa-10.2.7.old/src/gallium/auxiliary/gallivm/lp_bld_misc.cpp	2014-09-06 01:35:25.000000000 +0200
++++ Mesa-10.2.7.new/src/gallium/auxiliary/gallivm/lp_bld_misc.cpp	2014-09-11 16:20:22.186948002 +0200
+@@ -59,6 +59,7 @@
+ #include <llvm/ExecutionEngine/JITMemoryManager.h>
+ #endif
+ #include <llvm/Support/CommandLine.h>
++#include <llvm/Support/Host.h>
+ #include <llvm/Support/PrettyStackTrace.h>
+ 
+ #if HAVE_LLVM >= 0x0300
+@@ -318,10 +319,14 @@
+       }
+       builder.setMAttrs(MAttrs);
+    }
++#if HAVE_LLVM >= 0x0305
++   StringRef MCPU = llvm::sys::getHostCPUName();
++   builder.setMCPU(MCPU);
++#endif
+    builder.setJITMemoryManager(JITMemoryManager::CreateDefaultMemManager());
+ 
+    ExecutionEngine *JIT;
+-#if 0
++#if HAVE_LLVM >= 0x0302
+    JIT = builder.create();
+ #else
+    /*
